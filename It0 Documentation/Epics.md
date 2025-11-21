@@ -1,7 +1,7 @@
 ## EPIC 1 — Item Listing & Management (Owner-Side)
 ### Goal: Allow users to rent out videogames they receive.
 ### Includes:
-    •	Create an account as Item Owner
+    •	Create an account as a User
     •	Add a videogame listing (title, description, platform, condition, images)
     •	Set rental price and availability
     •	Edit or deactivate a listing
@@ -11,7 +11,6 @@
 ## EPIC 2 — Game Search & Rental Requests (Renter-Side)
 ### Goal: Allow renters to find games cheaply and easily rent them.
 ### Includes:
-    •	Create an account as a Renter
     •	Game search (by platform, genre, price range, owner rating, age rating)
     •	Game detail page
     •	Submit rental request

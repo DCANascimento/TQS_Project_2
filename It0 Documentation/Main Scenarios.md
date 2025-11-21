@@ -19,13 +19,12 @@ This document presents the main scenarios for the Videogame Rental Platform, bas
 Hannah receives the game *Animal Crossing* from a sponsor and wants to list it for rent.
 
 **Steps**
-1. Hannah creates an account and logs in as an **Owner**.  
+1. Hannah creates an account and logs in as a User.
 2. She opens the **Owner Dashboard**.  
 3. Clicks **“Add New Item”** to register a videogame.  
 4. Fills in the game details:  
    - Title  
-   - Description 
-   - Platform 
+   - Description  
    - Photos  
    - Condition  
    - Rental price per day  
@@ -73,9 +72,9 @@ Hannah needs to clarify details with renters.
 Tom wants to rent a story-driven RPG without buying it.
 
 **Steps**
-1. Registers and logs in as a **Renter**.  
+1. Registers and logs in as a User.  
 2. Uses the search bar to find games.  
-3. Applies filters (genre, price range, console, availability).  
+3. Applies filters (platform, genre, price range, owner rating).  
 4. Selects *The Legend Of Zelda: Tears of the Kingdom* from search results.  
 5. Chooses rental period and checks availability.  
 6. Confirms booking.  
@@ -119,7 +118,7 @@ Tom wants personalized suggestions based on his preferences.
 Ronan wants to find a family-friendly game to play with his two sons.
 
 **Steps**
-1. Registers and logs in as a **Renter**.  
+1. Registers and logs in as a User.  
 2. Uses the search bar and applies filters such as age rating and multiplayer mode.
 3. Selects a family-friendly game like *Mario Kart*.
 4. Books the videogame for the weekend.  
@@ -160,7 +159,7 @@ Ronan needs help coordinating pickups or schedules.
 Dawan wants to ensure the platform runs smoothly and reliably, showing his capability to manage complex systems effectively.
 
 **Steps**
-1. Logs in to the backoffice dashboard as a **Platform Admin**.  
+1. Logs in to the backoffice dashboard as an **Admin**.  
 2. Reviews system health indicators such as server uptime, load, and response times.  
 3. Detects any anomalies or alerts.  
 4. Escalates issues to technical teams or takes corrective action.
