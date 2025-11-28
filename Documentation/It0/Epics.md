@@ -7,7 +7,7 @@
 #### • View rental history of each item
 #### • See requests from renters and accept/deny them
 
-## EPIC User Account Management (User-Side)
+## EPIC 2 -  User Account Management (User-Side)
 ### Goal: Allow users to manage and view their account's data.
 ### Includes:
 #### • Create an account as a User
