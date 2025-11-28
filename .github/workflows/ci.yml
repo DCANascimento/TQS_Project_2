@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_DIR: Placeholder/test1
-      SONAR_TOKEN: # ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: # ${{ secrets.SONAR_HOST_URL }}
-      XRAY_CLIENT_ID: # ${{ secrets.XRAY_CLIENT_ID }}
-      XRAY_CLIENT_SECRET: # ${{ secrets.XRAY_CLIENT_SECRET }}
+      PROJECT_DIR: Placeholder/test1      # ⬅️ replace with your app folder
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+      XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
     steps:
       - name: Checkout repository

@@ -1,10 +1,27 @@
 # BitSwap —  Product Specification Document
 
-
-## Product summary
+# Introduction
+## Overview of the project
 
 BitSwap is a videogame rental marketplace that connect renters who want to save money and have short-term access to videogames and item owners who want to monetize from renting their videogames.
 The platform provides search, booking, payment and dashboards tailored for renters, owners and administrators.
+
+## Project Limitations and known issues
+Key risks and suggested mitigations:
+
+- Booking conflicts (technical): strong calendar validation, optimistic locking and conflict detection in the booking module.
+- Payment flow failures: use sandbox testing, idempotent operations and server-side verification of webhook events.
+- Fraud / low listing quality: owner verification steps, photo-based QA and admin moderation workflows.
+- Scalability if adoption grows: design stateless services, containerised deployment, and CDN for assets.
+
+Operational risks: late returns, disputes — mitigate with clear policies, deposit or hold mechanisms, and an escalation workflow.
+
+Market risks: competition from subscription services; mitigate by focusing on niche markets (retro games, collectors, local community) and value-added UX.
+
+
+# Product Concept and Requirements  
+
+## Vision Statement
 
 ## Features and requirements
 
@@ -28,6 +45,92 @@ Technology stack:
 - Backend: *To be decided*
 - Database: *To be decided*
 - Deployment:*To be decided*
+
+## User personas
+
+Representative personas are kept in `../It0/Personas.md`.
+
+- Hannah Wilson — Product Owner
+- Tom Schmidt — Renter
+- Ronan Connsworth — Renter
+- Dawan Houtcheques — Admin
+
+## Scenarios
+Representative scenarios are kept in `../It0/Main Scenarios.md`.
+
+## Project Epics and Priorities
+Representative epics are kept in `../It0/Epics.md`.
+
+## User stories
+
+The full set of user stories used to drive development is maintained in `./UserStories.md`. Below are a few high-priority examples (extracted):
+
+#### • User Story 1.1 - Add a videogame listing
+    As a user, I want to be able to add a listing for a videogame (including the title, a description, the platform, its condition and some images) so that other users can see it and rent it.
+#### • User Story 2.4 - View purchase history as a User
+    As a user, I want to be able to view my rental and payment history, so I can keep track of my past transactions and expenses.
+#### • User Story 3.1 - Game search
+    As a user, I want to be able to search for game listings and filter them to my needs (by platform, genre, price range, owner and age rating).
+#### • User Story 6.5 - Manage flagged content
+    As an admin, I want to be able to see and take action on flagged listings, reviews, or messages, so I can remove harmful or inappropriate material.
+
+
+
+## Domain Model
+(Ainda falta fazer isto)
+
+# Architecture Notebook
+
+![Architecture](Images/Architecture.png)
+
+## Key requirements and constraints
+### **System Constraints**
+- **Web-based access:** The system must be available primarily through a modern web browser.
+- **Database dependency:** The system relies on a relational database (MySQL), which must support transactional consistency for bookings and payments.
+- **External integrations:**
+  - Payment systems (Stripe Test Mode, PayPal Sandbox).
+  - Email/SMS services for notifications.
+- **High reliability:** Rental and payment workflows must function correctly even under moderate to high user load.
+
+## Architecture View
+
+**Architecture style**: microservices (service-oriented)
+
+- **API Gateway** (HTTP/REST)
+  - Single entry point for web clients — routes requests to services, handles API versioning.
+- **Web App (UI)** 
+  - Frontend that interacts with the API Gateway.
+- **User & Listing Service**
+  - CRUD for users and games/listings; availability calendar; owner profiles.
+- **Rental & Booking Service**
+  - Manages booking lifecycle, reservations, conflict detection, booking status transitions.
+- **Payment Service**
+  - Handles payment flows, sandbox integration, transaction logging.
+- **Search Service**
+  - Indexes listings, handles complex queries, faceted search and fast lookups.
+- **Moderation & Admin Service**
+  - Admin tools for user/listing moderation, reports, audit logs, role and permission management.
+- **Notification & Reporting Service**
+  - Sends email/SMS; generates periodic reports; handles notifications queue.
+- **Message Broker**
+  - Asynchronous tasks (notifications, analytics events, long-running jobs).
+- **Database(s)**
+  - Relational primary DB (Postgres/MySQL) for core transactional data.
+  - Optional search index store (Elasticsearch) and time-series DB for metrics.
+- **Analytics / KPI Aggregator**
+  - Aggregates events into dashboards for owners and admin backoffice.
+- **External Integrations**
+  - Payment gateway sandbox, email/SMS providers, optional geolocation services.
+
+## Deployment View
+fazer
+
+# API For Developers
+fazer
+
+
+# Extra 
+
 
 ## Timeline and milestones
 
@@ -76,37 +179,6 @@ Technology stack:
 **Main Activities**
 - n/a.
 
-
-## Risks and challenges
-
-Key risks and suggested mitigations:
-
-- Booking conflicts (technical): strong calendar validation, optimistic locking and conflict detection in the booking module.
-- Payment flow failures: use sandbox testing, idempotent operations and server-side verification of webhook events.
-- Fraud / low listing quality: owner verification steps, photo-based QA and admin moderation workflows.
-- Scalability if adoption grows: design stateless services, containerised deployment, and CDN for assets.
-
-Operational risks: late returns, disputes — mitigate with clear policies, deposit or hold mechanisms, and an escalation workflow.
-
-Market risks: competition from subscription services; mitigate by focusing on niche markets (retro games, collectors, local community) and value-added UX.
-
-## User stories
-
-The full set of user stories used to drive development is maintained in `./UserStories.md`. Below are a few high-priority examples (extracted):
-
-- *To be decided*
-- *To be decided*
-- *To be decided*
-- *To be decided*
-
-## User personas
-
-Representative personas are kept in `../It0/Personas.md`.
-
-- Hannah Wilson — Product Owner
-- Tom Schmidt — Renter
-- Ronan Connsworth — Renter
-- Dawan Houtcheques — Admin
 
 ## Functional Requirements
 
