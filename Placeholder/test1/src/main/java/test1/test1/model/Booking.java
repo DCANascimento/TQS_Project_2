@@ -1,0 +1,64 @@
+package test1.test1.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "bookings")
+public class Booking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer bookingId;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "game_id")
+    private Game game;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private double totalPrice;
+
+    protected Booking() {}
+
+    public Booking(User user, Game game, LocalDate startDate, LocalDate endDate, double totalPrice) {
+        this.user = user;
+        this.game = game;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalPrice = totalPrice;
+    }
+
+    public Integer getBookingId() {
+        return bookingId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+}

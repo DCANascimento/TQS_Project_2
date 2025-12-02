@@ -10,7 +10,3 @@ Steps:
 
     4 - If it all checks out, it lets the commit through
 
-
-TODO:
-
-    - In ci.yml, change the terms inside ${{ }} with the corresponding info (must be done by the admin (Cátia (Cátia is the admin I think (at least its not me (I think)))))  
