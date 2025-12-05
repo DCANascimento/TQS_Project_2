@@ -73,6 +73,11 @@ async function handleFormSubmit(e) {
     btnLoader.style.display = 'block';
 
     try {
+        // Get logged-in user from localStorage
+        const storedData = localStorage.getItem('bitswap_demo_user');
+        const currentUser = JSON.parse(storedData || '{}');
+        const ownerUsername = currentUser.username || "null";
+
         // Collect form data
         const formData = {
             title: document.getElementById('game-title').value.trim(),
@@ -83,7 +88,7 @@ async function handleFormSubmit(e) {
             active: document.getElementById('availability-toggle').checked,
             startDate: document.getElementById('start-date').value,
             endDate: document.getElementById('end-date').value,
-            ownerUsername: "null" // Using null for testing since login isn't implemented yet
+            ownerUsername: ownerUsername
         };
 
         // Send to backend
