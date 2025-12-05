@@ -61,4 +61,29 @@ public class Booking {
     public double getTotalPrice() {
         return totalPrice;
     }
+
+    public void setBookingId(Integer bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+    
 }
