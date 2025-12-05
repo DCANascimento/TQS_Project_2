@@ -30,4 +30,9 @@ public class LoginController {
     public String bookingRequests() {
         return "bookingrequests";
     }
+
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile";
+    }
 }

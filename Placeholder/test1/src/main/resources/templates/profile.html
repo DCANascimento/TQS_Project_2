@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BitSwap - Manage Your Profile Settings">
+    <title>Profile - BitSwap</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/shared.css}">
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+</head>
+
+<body>
+    <!-- Background overlay -->
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <!-- Fun background elements -->
+    <div class="particles" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Logo section -->
+            <div class="logo-section">
+                <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="header-logo"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback small" style="display: none;">
+                    <span class="logo-text">BitSwap</span>
+                </div>
+            </div>
+
+            <!-- Navigation - Owner -->
+            <nav class="main-nav owner-nav" role="navigation" style="display: none;">
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-link">Analytics</a></li>
+                    <li><a th:href="@{/bookingrequests}" class="nav-link">Booking Requests</a></li>
+                    <li><a th:href="@{/addvideogame}" class="nav-link">Add New Item</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link active">Profile</a></li>
+                </ul>
+            </nav>
+
+            <!-- Navigation - Renter -->
+            <nav class="main-nav renter-nav" role="navigation" style="display: none;">
+                <ul class="nav-list">
+                    <li><a th:href="@{/listings}" class="nav-link">Listings</a></li>
+                    <li><a href="#" class="nav-link">Renter Dashboard</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link active">Profile</a></li>
+                </ul>
+            </nav>
+
+            <!-- User actions -->
+            <div class="header-actions">
+                <a th:href="@{/login}" class="header-btn secondary" id="sign-out-btn">Sign Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <div class="profile-container">
+            <!-- Page header -->
+            <div class="page-header">
+                <h1 class="page-title">My Profile</h1>
+                <p class="page-subtitle">Manage your account information and preferences</p>
+            </div>
+
+            <!-- Profile card -->
+            <div class="profile-card">
+                <!-- Profile header with avatar -->
+                <div class="profile-header">
+                    <div class="avatar-section">
+                        <div class="avatar-wrapper">
+                            <div class="avatar-circle" id="user-avatar">
+                                <span class="avatar-initial" id="avatar-initial">U</span>
+                            </div>
+                            <div class="avatar-status online"></div>
+                        </div>
+                        <div class="avatar-info">
+                            <h2 class="user-display-name" id="display-username">Loading...</h2>
+                            <p class="user-role" id="display-role">
+                                <span class="role-badge">Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile form -->
+                <form id="profile-form" class="profile-form">
+                    <!-- Account Information Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Account Information</h3>
+
+                        <div class="field-group">
+                            <label for="username" class="field-label">Username *</label>
+                            <div class="input-wrapper">
+                                <div class="input-icon">👤</div>
+                                <input type="text" id="username" name="username" class="form-input"
+                                    placeholder="Enter your username" required disabled>
+                                <button type="button" class="edit-btn" id="edit-username-btn" title="Edit username">
+                                    <span class="edit-icon">✏️</span>
+                                </button>
+                            </div>
+                            <div class="field-hint">Your unique identifier on BitSwap</div>
+                            <div class="error-message" id="username-error"></div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="bio" class="field-label">Bio / Description</label>
+                            <div class="input-wrapper">
+                                <textarea id="bio" name="bio" class="form-textarea"
+                                    placeholder="Tell us about yourself, your gaming preferences, or what you're looking for..."
+                                    rows="5" disabled></textarea>
+                                <button type="button" class="edit-btn textarea-edit" id="edit-bio-btn" title="Edit bio">
+                                    <span class="edit-icon">✏️</span>
+                                </button>
+                                <div class="char-count">
+                                    <span id="bio-count">0</span> / 500
+                                </div>
+                            </div>
+                            <div class="field-hint">Share your gaming story or interests</div>
+                            <div class="error-message" id="bio-error"></div>
+                        </div>
+                    </div>
+
+                    <!-- Account Details (Read-only) -->
+                    <div class="form-section">
+                        <h3 class="section-title">Account Details</h3>
+
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">User ID</span>
+                                <span class="detail-value" id="user-id">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Account Type</span>
+                                <span class="detail-value" id="account-type">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Member Since</span>
+                                <span class="detail-value" id="member-since">—</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Last Updated</span>
+                                <span class="detail-value" id="last-updated">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-btn" style="display: none;">
+                            <span class="btn-text">Cancel</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="save-btn" style="display: none;">
+                            <span class="btn-text">Save Changes</span>
+                            <div class="btn-loader" style="display: none;"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="success-icon">✅</div>
+            <h3>Profile Updated Successfully!</h3>
+            <p>Your changes have been saved.</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeModal()">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script th:src="@{/js/shared.js}"></script>
+    <script th:src="@{/js/profile.js}"></script>
+</body>
+
+</html>
