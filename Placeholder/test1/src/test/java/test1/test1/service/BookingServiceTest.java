@@ -88,4 +88,16 @@ class BookingServiceTest {
         assertThat(b).isNull();
         verify(bookingRepository, never()).save(any());
     }
+
+    @Test
+    void getAllBookings() {
+        when(bookingRepository.findAll()).thenReturn(List.of(
+            new Booking(user, game, LocalDate.now(), LocalDate.now().plusDays(1), 2.0),
+            new Booking(user, game, LocalDate.now(), LocalDate.now().plusDays(2), 4.0)
+        ));
+
+        var list = bookingService.getAllBookings();
+
+        assertThat(list).hasSize(2);
+    }
 }
