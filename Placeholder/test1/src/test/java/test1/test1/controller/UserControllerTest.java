@@ -13,7 +13,7 @@ import test1.test1.model.User;
 import test1.test1.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+class UserControllerTest { 
 
     @Mock
     private UserService userService;
