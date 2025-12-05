@@ -48,6 +48,20 @@ public class Game {
         this.createdAt = LocalDate.now();
     }
 
+    // Simple constructor for testing
+    public Game(String title, String description, double pricePerDay) {
+        this.title = title;
+        this.description = description;
+        this.pricePerDay = pricePerDay;
+        this.condition = "good";
+        this.photos = "";
+        this.active = true;
+        this.startDate = null;
+        this.endDate = null;
+        this.ownerUsername = "test-user";
+        this.createdAt = LocalDate.now();
+    }
+
     public Game(String title, String description, double pricePerDay, String condition, 
                 String photos, boolean active, LocalDate startDate, LocalDate endDate, String ownerUsername) {
         this.title = title;
