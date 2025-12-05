@@ -35,4 +35,9 @@ public class LoginController {
     public String profile() {
         return "profile";
     }
+
+    @GetMapping("/gamedetails")
+    public String gameDetails() {
+        return "gamedetails";
+    }
 }

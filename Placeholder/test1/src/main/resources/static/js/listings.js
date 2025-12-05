@@ -30,11 +30,11 @@ class GameListings {
         };
     }
 
-    init() {
-        this.createSampleGames();
+    async init() {
         this.initPriceSlider();
         this.bindEvents();
         BitSwapUtils.init();
+        await this.loadGamesFromDatabase();
         this.renderGames();
     }
 
@@ -43,6 +43,40 @@ class GameListings {
         this.maxPrice = 15;
         this.updateSliderDisplay();
         this.updateSliderVisual();
+    }
+
+    async loadGamesFromDatabase() {
+        try {
+            const response = await fetch('/games');
+            if (!response.ok) {
+                throw new Error('Failed to fetch games');
+            }
+            const games = await response.json();
+
+            // Transform backend Game model to frontend format
+            this.allGames = games.map(game => ({
+                id: game.gameId,
+                title: game.title,
+                platform: 'pc', // Default platform since backend doesn't have this field
+                category: 'other', // Default category since backend doesn't have this field
+                description: game.description,
+                status: game.active ? 'available' : 'rented',
+                dateAdded: game.createdAt,
+                price: game.pricePerDay,
+                photos: game.photos, // Include photos from backend
+                owner: {
+                    name: game.ownerUsername || 'Unknown',
+                    rating: 4.5 // Default rating since backend doesn't have this field
+                }
+            }));
+
+            this.currentGames = [...this.allGames];
+        } catch (error) {
+            console.error('Error loading games:', error);
+            // Show empty state if fetch fails
+            this.allGames = [];
+            this.currentGames = [];
+        }
     }
 
     createSampleGames() {
@@ -314,13 +348,14 @@ class GameListings {
     }
 
     bindViewDetailsEvents() {
-        // Disabled for now - view details functionality removed
-        // document.addEventListener('click', (e) => {
-        //     if (e.target.classList.contains('view-details-btn')) {
-        //         const gameId = e.target.getAttribute('data-game-id');
-        //         this.showGameDetails(gameId);
-        //     }
-        // });
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('view-details-btn')) {
+                const gameId = e.target.getAttribute('data-game-id');
+                if (gameId) {
+                    window.location.href = `/gamedetails?id=${gameId}`;
+                }
+            }
+        });
     }
 
     showComingSoon(featureName) {
@@ -633,10 +668,20 @@ class GameListings {
             }
         }
 
+        // Get first photo if available
+        let imageHtml = '';
+        if (game.photos && game.photos.trim() !== '') {
+            const firstPhoto = game.photos.split(',')[0].trim();
+            if (firstPhoto) {
+                imageHtml = `<img src="${firstPhoto}" alt="${game.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+            }
+        }
+
         return `
       <article class="game-card" data-game-id="${game.id}">
         <div class="game-image">
-          <div class="placeholder-icon">🎮</div>
+          ${imageHtml}
+          <div class="placeholder-icon" style="${imageHtml ? 'display: none;' : ''}">🎮</div>
         </div>
         <div class="game-content">
           <div class="game-price">$${game.price.toFixed(2)}/day</div>
@@ -658,8 +703,8 @@ class GameListings {
           
           <div class="game-footer">
             <span class="status-badge ${statusClass}">${statusText}</span>
-            <button class="view-details-btn" disabled>
-              Coming Soon
+            <button class="view-details-btn" data-game-id="${game.id}">
+              See Details
             </button>
           </div>
         </div>

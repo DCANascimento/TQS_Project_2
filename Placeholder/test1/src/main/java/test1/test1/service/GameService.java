@@ -2,6 +2,7 @@ package test1.test1.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,10 @@ public class GameService {
 
     public Game getGame(Integer id) {
         return gameRepository.findById(id).orElse(null);
+    }
+
+    public Optional<Game> getGameById(Integer id) {
+        return gameRepository.findById(id);
     }
 
     public void save(Game game) {

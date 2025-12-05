@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BitSwap - Game Details">
+    <title>Game Details - BitSwap</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/shared.css}">
+    <link rel="stylesheet" th:href="@{/css/gamedetails.css}">
+</head>
+
+<body>
+    <!-- Background overlay -->
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <!-- Fun background elements -->
+    <div class="particles" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Logo section -->
+            <div class="logo-section">
+                <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="header-logo"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback small" style="display: none;">
+                    <span class="logo-text">BitSwap</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation">
+                <ul class="nav-list">
+                    <li><a th:href="@{/listings}" class="nav-link">Listings</a></li>
+                    <li><a href="#" class="nav-link">Renter Dashboard</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link">Profile</a></li>
+                </ul>
+            </nav>
+
+            <!-- User actions -->
+            <div class="header-actions">
+                <a th:href="@{/login}" class="header-btn secondary" id="sign-out-btn">Sign Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Back button -->
+            <div class="back-nav">
+                <a th:href="@{/listings}" class="back-link">
+                    <span class="back-arrow">←</span> Back to Listings
+                </a>
+            </div>
+
+            <!-- Game Details Card -->
+            <div class="game-details-card">
+                <!-- Loading State -->
+                <div id="loading-state" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading game details...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-state" class="error-state" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <h2>Game Not Found</h2>
+                    <p>The game you're looking for doesn't exist or has been removed.</p>
+                    <a th:href="@{/listings}" class="btn btn-primary">Browse Games</a>
+                </div>
+
+                <!-- Game Content -->
+                <div id="game-content" style="display: none;">
+                    <!-- Image Gallery -->
+                    <div class="game-gallery">
+                        <div class="main-image">
+                            <img id="game-main-image" src="" alt="Game Image">
+                            <div class="image-placeholder" id="image-placeholder">
+                                <div class="placeholder-icon">🎮</div>
+                            </div>
+                        </div>
+                        <div class="thumbnail-strip" id="thumbnail-strip">
+                            <!-- Thumbnails will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Game Info -->
+                    <div class="game-info">
+                        <div class="game-header">
+                            <h1 id="game-title" class="game-title"></h1>
+                            <div class="game-status">
+                                <span id="status-badge" class="status-badge"></span>
+                            </div>
+                        </div>
+
+                        <div class="game-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Price</span>
+                                <span id="game-price" class="meta-value price"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Condition</span>
+                                <span id="game-condition" class="meta-value"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Added</span>
+                                <span id="game-date" class="meta-value"></span>
+                            </div>
+                        </div>
+
+                        <div class="game-description">
+                            <h2>Description</h2>
+                            <p id="game-description"></p>
+                        </div>
+
+                        <div class="owner-section">
+                            <h2>Owner Information</h2>
+                            <div class="owner-card">
+                                <div class="owner-avatar">
+                                    <span id="owner-initial"></span>
+                                </div>
+                                <div class="owner-details">
+                                    <div class="owner-name" id="owner-name"></div>
+                                    <div class="owner-rating" id="owner-rating">
+                                        <div class="stars"></div>
+                                        <span class="rating-text"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="availability-section" id="availability-section">
+                            <h2>Availability Calendar</h2>
+                            <div class="calendar-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color available"></span>
+                                    <span class="legend-text">Available</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color unavailable"></span>
+                                    <span class="legend-text">Unavailable</span>
+                                </div>
+                            </div>
+                            <div class="calendar-container">
+                                <div class="calendar-header">
+                                    <button class="calendar-nav" id="prev-month">&lt;</button>
+                                    <div class="calendar-title" id="calendar-title"></div>
+                                    <button class="calendar-nav" id="next-month">&gt;</button>
+                                </div>
+                                <div class="calendar-weekdays">
+                                    <div class="weekday">Sun</div>
+                                    <div class="weekday">Mon</div>
+                                    <div class="weekday">Tue</div>
+                                    <div class="weekday">Wed</div>
+                                    <div class="weekday">Thu</div>
+                                    <div class="weekday">Fri</div>
+                                    <div class="weekday">Sat</div>
+                                </div>
+                                <div class="calendar-days" id="calendar-days">
+                                    <!-- Days will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-section">
+                            <button id="rent-btn" class="btn btn-primary btn-large">
+                                Rent This Game
+                            </button>
+                            <button id="contact-owner-btn" class="btn btn-secondary btn-large">
+                                Contact Owner
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/shared.js}"></script>
+    <script th:src="@{/js/gamedetails.js}"></script>
+</body>
+
+</html>
