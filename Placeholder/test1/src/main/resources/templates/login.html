@@ -18,7 +18,7 @@
     <link rel="stylesheet" th:href="@{/css/login.css}">
 
     <!-- Favicon (optional, falls back gracefully) -->
-    <link rel="icon" type="image/png" href="assets/applogo.png">
+    <link rel="icon" type="image/png" th:href="@{/images/applogo.png}">
 </head>
 
 <body>
@@ -35,8 +35,8 @@
             <!-- Logo header -->
             <header class="auth-header">
                 <div class="logo-container">
-                    <img src="@{/images/applogo.png}" alt="BitSwap Logo" class="logo"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="logo"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="logo-fallback large" style="display: none;">
                         <span class="logo-text">BitSwap</span>
                     </div>
@@ -175,7 +175,7 @@
             <div id="success-overlay" class="success-overlay" aria-hidden="true" role="alert">
                 <div class="success-content">
                     <div class="success-logo">
-                        <img src="assets/applogo.png" alt="BitSwap Logo" class="success-logo-img"
+                        <img src="@{/images/applogo.png}" alt="BitSwap Logo" class="success-logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         <div class="success-logo-fallback" style="display: none;">
                             <span class="success-logo-text">BitSwap</span>

@@ -15,8 +15,8 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../static/css/shared.css">
-    <link rel="stylesheet" href="../static/css/addvideogame.css">
+    <link rel="stylesheet" th:href="@{/css/shared.css}">
+    <link rel="stylesheet" th:href="@{/css/addvideogame.css}">
 </head>
 
 <body>
@@ -31,7 +31,7 @@
         <div class="header-container">
             <!-- Logo section -->
             <div class="logo-section">
-                <img src="../static/images/applogo.png" alt="BitSwap Logo" class="header-logo"
+                <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="header-logo"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="logo-fallback small" style="display: none;">
                     <span class="logo-text">BitSwap</span>
@@ -213,8 +213,8 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="../static/js/shared.js"></script>
-    <script src="../static/js/addvideogame.js"></script>
+    <script th:src="@{/js/shared.js}"></script>
+    <script th:src="@{/js/addvideogame.js}"></script>
 </body>
 
 </html>
