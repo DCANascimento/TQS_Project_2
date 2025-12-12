@@ -40,4 +40,9 @@ public class LoginController {
     public String gameDetails() {
         return "gamedetails";
     }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
 }

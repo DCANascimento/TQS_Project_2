@@ -38,6 +38,14 @@ public class GameService {
         return gameRepository.findById(id);
     }
 
+    public boolean deleteGame(Integer id) {
+        if (gameRepository.existsById(id)) {
+            gameRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
     public void save(Game game) {
         gameRepository.save(game);
     }
