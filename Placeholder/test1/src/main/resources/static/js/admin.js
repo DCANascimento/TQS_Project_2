@@ -396,7 +396,6 @@ class AdminDashboard {
     createUserRow(user) {
         const row = document.createElement('tr');
 
-        const createdDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US') : '-';
         const userId = user.userId || user.id || '';
 
         row.innerHTML = `
@@ -404,7 +403,6 @@ class AdminDashboard {
             <td class="game-title-cell">${this.escapeHtml(user.username || '')}</td>
             <td>${this.escapeHtml(user.role || 'renter')}</td>
             <td>${this.escapeHtml(user.bio || '')}</td>
-            <td>${createdDate}</td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon danger ban-user-btn" data-id="${userId}" title="Ban User">
