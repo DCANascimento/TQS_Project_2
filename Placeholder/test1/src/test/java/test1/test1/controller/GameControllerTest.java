@@ -39,7 +39,7 @@ class GameControllerTest {
     void createGame_delegatesToService() {
         Game g = new Game("Chess 2", "A strategic board game, again", 5.5);
         g.setGameId(1);
-        when(gameService.addGame(anyString(), anyString(), anyDouble(), anyString(), anyString(), anyBoolean(), any(), any(), anyString())).thenReturn(g);
+        when(gameService.addGame(anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any(), anyString())).thenReturn(g);
 
         GameRequest request = new GameRequest();
         request.setTitle("Chess 2");
@@ -47,13 +47,14 @@ class GameControllerTest {
         request.setPrice(5.5);
         request.setCondition("good");
         request.setPhotos("");
+        request.setTags("");
         request.setActive(true);
         
         ResponseEntity<Game> result = gameController.addGame(request, session);
 
         assertThat(result.getBody()).isNotNull();
         assertThat(result.getBody().getGameId()).isEqualTo(1);
-        verify(gameService).addGame(anyString(), anyString(), anyDouble(), anyString(), anyString(), anyBoolean(), any(), any(), anyString());
+        verify(gameService).addGame(anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any(), anyString());
     }
 
     @Test

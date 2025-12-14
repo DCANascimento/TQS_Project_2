@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initPhotoUpload();
     initAvailabilityToggle();
     initDateValidation();
+    initTagsInput();
 
     // Set minimum date to today
     setMinDate();
@@ -81,12 +82,16 @@ async function handleFormSubmit(e) {
         // Upload images first and get paths
         const photoPaths = await uploadImages();
 
+        // Get tags
+        const tags = document.getElementById('game-tags').value;
+
         // Collect form data
         const formData = {
             title: document.getElementById('game-title').value.trim(),
             description: document.getElementById('game-description').value.trim(),
             condition: document.getElementById('game-condition').value,
             photos: photoPaths.join(','), // Store comma-separated paths
+            tags: tags, // Store comma-separated tags
             price: parseFloat(document.getElementById('rental-price').value),
             active: document.getElementById('availability-toggle').checked,
             startDate: document.getElementById('start-date').value,
@@ -655,6 +660,78 @@ function showErrorMessage(message) {
 /* ========================
    UTILITY EXTENSIONS
    ======================== */
+
+// Tags functionality
+let selectedTags = [];
+
+function initTagsInput() {
+    const tagsInput = document.getElementById('game-tags-input');
+    const tagsContainer = document.getElementById('tags-container');
+    const tagsHidden = document.getElementById('game-tags');
+    const tagSuggestions = document.querySelectorAll('.tag-suggestion');
+
+    if (!tagsInput || !tagsContainer) return;
+
+    // Handle Enter key to add tags
+    tagsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const tag = this.value.trim();
+            if (tag && !selectedTags.includes(tag)) {
+                addTag(tag);
+                this.value = '';
+            }
+        }
+    });
+
+    // Handle suggestion clicks
+    tagSuggestions.forEach(suggestion => {
+        suggestion.addEventListener('click', function () {
+            const tag = this.dataset.tag;
+            if (!selectedTags.includes(tag)) {
+                addTag(tag);
+                this.classList.add('added');
+            }
+        });
+    });
+
+    function addTag(tag) {
+        selectedTags.push(tag);
+        updateTagsDisplay();
+        updateTagsHidden();
+    }
+
+    function removeTag(tag) {
+        selectedTags = selectedTags.filter(t => t !== tag);
+        updateTagsDisplay();
+        updateTagsHidden();
+
+        // Re-enable suggestion if it exists
+        tagSuggestions.forEach(suggestion => {
+            if (suggestion.dataset.tag === tag) {
+                suggestion.classList.remove('added');
+            }
+        });
+    }
+
+    function updateTagsDisplay() {
+        tagsContainer.innerHTML = selectedTags.map(tag => `
+            <span class="tag-item">
+                ${tag}
+                <span class="tag-remove" onclick="removeTagByName('${tag}')">×</span>
+            </span>
+        `).join('');
+    }
+
+    function updateTagsHidden() {
+        tagsHidden.value = selectedTags.join(',');
+    }
+
+    // Make removeTag available globally
+    window.removeTagByName = function (tag) {
+        removeTag(tag);
+    };
+}
 
 // Extend BitSwapUtils with additional functions for this page
 if (typeof BitSwapUtils !== 'undefined') {

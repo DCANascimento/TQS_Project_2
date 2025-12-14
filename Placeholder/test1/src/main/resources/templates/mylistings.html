@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BitSwap - Manage Your Videogame Listings">
+    <title>My Listings - BitSwap</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/shared.css}">
+    <link rel="stylesheet" th:href="@{/css/mylistings.css}">
+</head>
+
+<body>
+    <!-- Background overlay -->
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <!-- Fun background elements -->
+    <div class="particles" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Logo section -->
+            <div class="logo-section">
+                <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="header-logo"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback small" style="display: none;">
+                    <span class="logo-text">BitSwap</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation">
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-link">Analytics</a></li>
+                    <li><a th:href="@{/bookingrequests}" class="nav-link">Booking Requests</a></li>
+                    <li><a th:href="@{/mylistings}" class="nav-link active">My Listings</a></li>
+                    <li><a th:href="@{/addvideogame}" class="nav-link">Add New Item</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link">Profile</a></li>
+                </ul>
+            </nav>
+
+            <!-- User actions -->
+            <div class="header-actions">
+                <a th:href="@{/login}" class="header-btn secondary" id="sign-out-btn">Sign Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <!-- Page header -->
+        <section class="page-header-section compact">
+            <div class="page-header-content">
+                <h1 class="page-title">My Listings</h1>
+                <div class="header-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">Total</span>
+                        <span class="stat-value" id="total-listings">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Active</span>
+                        <span class="stat-value accent" id="active-listings">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Inactive</span>
+                        <span class="stat-value muted" id="inactive-listings">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Listings section -->
+        <section class="listings-section">
+            <div class="listings-controls">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="active">Active</button>
+                    <button class="filter-tab" data-filter="inactive">Inactive</button>
+                </div>
+                <div class="search-wrapper">
+                    <input type="text" id="listings-search" class="search-input" placeholder="Search your listings...">
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div class="loading-state" id="loading-state">
+                <div class="loader"></div>
+                <p>Loading your listings...</p>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">🎮</div>
+                <h3>No listings yet</h3>
+                <p>Start by adding your first videogame to the marketplace</p>
+                <a th:href="@{/addvideogame}" class="btn btn-primary">Add Your First Game</a>
+            </div>
+
+            <!-- Listings grid -->
+            <div class="listings-grid" id="listings-grid">
+                <!-- Listing cards will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeEditModal()"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Edit Listing</h3>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-game-form" class="game-form">
+                    <input type="hidden" id="edit-game-id">
+
+                    <div class="form-section compact">
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label for="edit-title" class="field-label">Game Title *</label>
+                                <input type="text" id="edit-title" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="edit-description" class="field-label">Description *</label>
+                            <textarea id="edit-description" class="form-textarea" rows="3" required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label for="edit-condition" class="field-label">Condition *</label>
+                                <select id="edit-condition" class="form-select" required>
+                                    <option value="new">New</option>
+                                    <option value="like-new">Like New</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="edit-price" class="field-label">Price (€/day) *</label>
+                                <div class="price-wrapper">
+                                    <span class="currency-symbol">€</span>
+                                    <input type="number" id="edit-price" class="form-input price-input" min="0"
+                                        step="0.01" required>
+                                    <span class="price-suffix">/day</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="edit-tags-input" class="field-label">Tags</label>
+                            <div class="tags-input-wrapper">
+                                <div class="tags-container" id="edit-tags-container"></div>
+                                <input type="text" id="edit-tags-input" class="form-input tags-input"
+                                    placeholder="Add tags and press Enter">
+                                <input type="hidden" id="edit-tags">
+                            </div>
+                            <div class="tags-suggestions">
+                                <div class="tag-category">
+                                    <span class="tag-category-label">Platform:</span>
+                                    <span class="tag-suggestion" data-tag="PlayStation">PlayStation</span>
+                                    <span class="tag-suggestion" data-tag="Xbox">Xbox</span>
+                                    <span class="tag-suggestion" data-tag="Nintendo Switch">Nintendo Switch</span>
+                                    <span class="tag-suggestion" data-tag="PC">PC</span>
+                                </div>
+                                <div class="tag-category">
+                                    <span class="tag-category-label">Genre:</span>
+                                    <span class="tag-suggestion" data-tag="Action">Action</span>
+                                    <span class="tag-suggestion" data-tag="Adventure">Adventure</span>
+                                    <span class="tag-suggestion" data-tag="RPG">RPG</span>
+                                    <span class="tag-suggestion" data-tag="Sports">Sports</span>
+                                    <span class="tag-suggestion" data-tag="Shooter">Shooter</span>
+                                    <span class="tag-suggestion" data-tag="Puzzle">Puzzle</span>
+                                    <span class="tag-suggestion" data-tag="Horror">Horror</span>
+                                    <span class="tag-suggestion" data-tag="Platformer">Platformer</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label class="field-label">Status</label>
+                                <div class="toggle-wrapper">
+                                    <input type="checkbox" id="edit-active" class="toggle-input">
+                                    <label for="edit-active" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">Active</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label for="edit-start-date" class="field-label">Available From</label>
+                                <input type="date" id="edit-start-date" class="form-input">
+                            </div>
+                            <div class="field-group">
+                                <label for="edit-end-date" class="field-label">Available Until</label>
+                                <input type="date" id="edit-end-date" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedGame()">
+                    <span class="btn-text">Save Changes</span>
+                    <div class="btn-loader" style="display: none;"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeDeleteModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Listing</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
+                <div class="delete-game-info">
+                    <strong id="delete-game-title"></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">
+                    <span class="btn-text">Delete</span>
+                    <div class="btn-loader" style="display: none;"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script th:src="@{/js/shared.js}"></script>
+    <script th:src="@{/js/mylistings.js}"></script>
+</body>
+
+</html>

@@ -43,6 +43,7 @@
                 <ul class="nav-list">
                     <li><a href="#" class="nav-link">Analytics</a></li>
                     <li><a th:href="@{/bookingrequests}" class="nav-link">Booking Requests</a></li>
+                    <li><a th:href="@{/mylistings}" class="nav-link">My Listings</a></li>
                     <li><a th:href="@{/addvideogame}" class="nav-link active">Add New Item</a></li>
                     <li><a th:href="@{/profile}" class="nav-link">Profile</a></li>
                 </ul>
@@ -106,6 +107,36 @@
                                 </select>
                             </div>
                             <div class="error-message" id="condition-error"></div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="game-tags" class="field-label">Tags</label>
+                            <div class="tags-input-wrapper">
+                                <div class="tags-container" id="tags-container"></div>
+                                <input type="text" id="game-tags-input" class="form-input tags-input"
+                                    placeholder="Add tags (platform, genre, etc.) and press Enter">
+                                <input type="hidden" id="game-tags" name="tags">
+                            </div>
+                            <div class="tags-suggestions">
+                                <div class="tag-category">
+                                    <span class="tag-category-label">Platform:</span>
+                                    <span class="tag-suggestion" data-tag="PlayStation">PlayStation</span>
+                                    <span class="tag-suggestion" data-tag="Xbox">Xbox</span>
+                                    <span class="tag-suggestion" data-tag="Nintendo Switch">Nintendo Switch</span>
+                                    <span class="tag-suggestion" data-tag="PC">PC</span>
+                                </div>
+                                <div class="tag-category">
+                                    <span class="tag-category-label">Genre:</span>
+                                    <span class="tag-suggestion" data-tag="Action">Action</span>
+                                    <span class="tag-suggestion" data-tag="Adventure">Adventure</span>
+                                    <span class="tag-suggestion" data-tag="RPG">RPG</span>
+                                    <span class="tag-suggestion" data-tag="Sports">Sports</span>
+                                    <span class="tag-suggestion" data-tag="Shooter">Shooter</span>
+                                    <span class="tag-suggestion" data-tag="Puzzle">Puzzle</span>
+                                    <span class="tag-suggestion" data-tag="Horror">Horror</span>
+                                    <span class="tag-suggestion" data-tag="Platformer">Platformer</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
