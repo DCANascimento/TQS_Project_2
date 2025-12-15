@@ -72,7 +72,7 @@ public class GameController {
             
             return ResponseEntity.ok(game);
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace(); Uncomment for debuging
             return ResponseEntity.badRequest().build();
         }
     }
