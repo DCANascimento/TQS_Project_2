@@ -3,10 +3,11 @@ name: CD Pipeline
 on:
   push:
     branches: ["main"]  # deploy only from main
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ toLower(github.repository) }}
+  IMAGE_NAME: tqs-project-2
   CONTAINER_NAME: tqs-app
   APP_PORT: 8080
   HOST_PORT: 80
