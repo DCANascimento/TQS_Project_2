@@ -64,50 +64,56 @@ jobs:
     if: success()  # Only run if build succeeded
 
     steps:
+      - name: Create deploy script
+        shell: powershell
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          APP_PORT: ${{ env.APP_PORT }}
+          HOST_PORT: ${{ env.HOST_PORT }}
+        run: |
+          $script = @"
+          set -e
+          echo "Pulling latest image..."
+          docker pull `$env:REGISTRY/`$env:IMAGE_NAME:latest
+          echo "Stopping and removing old container..."
+          docker stop `$env:CONTAINER_NAME || true
+          docker rm `$env:CONTAINER_NAME || true
+          echo "Starting new container..."
+          docker run -d --name `$env:CONTAINER_NAME -p `$env:HOST_PORT:`$env:APP_PORT --restart unless-stopped --health-interval=30s --health-timeout=3s --health-retries=3 --health-start-period=40s `$env:REGISTRY/`$env:IMAGE_NAME:latest
+          echo "Waiting for app to be healthy..."
+          max_attempts=30
+          attempt=0
+          while [ `$attempt -lt `$max_attempts ]; do
+            if docker inspect --format='{{.State.Health.Status}}' `$env:CONTAINER_NAME | grep -q "healthy"; then
+              echo "✓ App is healthy!"
+              exit 0
+            fi
+            attempt=`$((attempt + 1))
+            echo "Attempt `$attempt/`$max_attempts: Waiting for app to be ready..."
+            sleep 2
+          done
+          echo "✗ App failed to become healthy!"
+          docker logs `$env:CONTAINER_NAME
+          docker stop `$env:CONTAINER_NAME
+          exit 1
+          "@
+          $script | Out-File -FilePath deploy.sh -Encoding ASCII
+
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e  # Exit on any error
-            
-            echo "Pulling latest image..."
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
-            echo "Stopping and removing old container..."
-            docker stop ${{ env.CONTAINER_NAME }} || true
-            docker rm ${{ env.CONTAINER_NAME }} || true
-            
-            echo "Starting new container..."
-            docker run -d \
-              --name ${{ env.CONTAINER_NAME }} \
-              -p ${{ env.HOST_PORT }}:${{ env.APP_PORT }} \
-              --restart unless-stopped \
-              --health-interval=30s \
-              --health-timeout=3s \
-              --health-retries=3 \
-              --health-start-period=40s \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
-            echo "Waiting for app to be healthy..."
-            max_attempts=30
-            attempt=0
-            while [ $attempt -lt $max_attempts ]; do
-              if docker inspect --format='{{.State.Health.Status}}' ${{ env.CONTAINER_NAME }} | grep -q "healthy"; then
-                echo "✓ App is healthy!"
-                exit 0
-              fi
-              attempt=$((attempt + 1))
-              echo "Attempt $attempt/$max_attempts: Waiting for app to be ready..."
-              sleep 2
-            done
-            
-            echo "✗ App failed to become healthy!"
-            docker logs ${{ env.CONTAINER_NAME }}
-            docker stop ${{ env.CONTAINER_NAME }}
-            exit 1
+        shell: powershell
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          $keyPath = "$PWD\deploy_key.pem"
+          Set-Content -Path $keyPath -Value $env:SERVER_SSH_KEY -NoNewline
+          icacls $keyPath /inheritance:r /grant:r "$(whoami):R" | Out-Null
+          $sshTarget = "$($env:SERVER_USER)@$($env:SERVER_HOST)"
+          ssh -i $keyPath -o StrictHostKeyChecking=no $sshTarget 'bash -s' < deploy.sh
+          Remove-Item -Force $keyPath
 
       - name: Notify deployment status
         if: always()
