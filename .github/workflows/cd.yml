@@ -145,7 +145,7 @@ jobs:
           }
 
           # Pipe deploy.sh to remote bash (PowerShell-safe)
-          Get-Content deploy.sh -Raw |
+          Get-Content scripts/deploy.sh -Raw |
             ssh -i $keyPath -o StrictHostKeyChecking=no `
               $target `
               "bash -s -- $env:REGISTRY $env:IMAGE_NAME $env:CONTAINER_NAME $env:APP_PORT $env:HOST_PORT"
