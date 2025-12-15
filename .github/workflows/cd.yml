@@ -112,18 +112,13 @@ jobs:
           $raw = $env:SERVER_SSH_KEY.Trim()
           if ($raw.StartsWith('"') -and $raw.EndsWith('"')) { $raw = $raw.Trim('"') }
 
-          # Try base64 decode if it looks like base64, otherwise normalize newlines
-          if ($raw -match '^[A-Za-z0-9+/=`r`n]+$' -and ($raw.Length %% 4 -eq 0)) {
-            try {
-              $bytes = [Convert]::FromBase64String($raw)
-              [IO.File]::WriteAllBytes($keyPath, $bytes)
-            } catch {
-              $raw = $raw -replace "`r`n","`n"
-              [System.IO.File]::WriteAllText($keyPath, $raw, [System.Text.Encoding]::UTF8)
-            }
-          } else {
-            $raw = $raw -replace "`r`n","`n"
-            [System.IO.File]::WriteAllText($keyPath, $raw, [System.Text.Encoding]::UTF8)
+          # Attempt to decode as base64; if that fails, write raw key with normalized newlines
+          try {
+            $bytes = [Convert]::FromBase64String($raw)
+            [IO.File]::WriteAllBytes($keyPath, $bytes)
+          } catch {
+            $normalized = $raw -replace "`r`n","`n"
+            [System.IO.File]::WriteAllText($keyPath, $normalized, [System.Text.Encoding]::UTF8)
           }
 
           icacls $keyPath /inheritance:r /grant:r "$(whoami):R" | Out-Null
