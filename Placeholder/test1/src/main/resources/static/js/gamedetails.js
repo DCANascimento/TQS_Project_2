@@ -81,7 +81,7 @@ class GameDetails {
 
             // Load bookings for calendar
             await this.loadBookings();
-            
+
             // Render calendar after bookings are loaded
             if (this.gameData.startDate && this.gameData.endDate) {
                 this.renderCalendar();
