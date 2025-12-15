@@ -108,13 +108,40 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
-          $keyPath = "$env:TEMP\deploy_key.pem"
-          # Write key in binary mode to preserve exact format (no line ending conversion)
-          [System.IO.File]::WriteAllText($keyPath, $env:SERVER_SSH_KEY, [System.Text.Encoding]::ASCII)
+          $keyPath = Join-Path $env:TEMP 'deploy_key.pem'
+          $raw = $env:SERVER_SSH_KEY.Trim()
+          if ($raw.StartsWith('"') -and $raw.EndsWith('"')) { $raw = $raw.Trim('"') }
+
+          # Try base64 decode if it looks like base64, otherwise normalize newlines
+          if ($raw -match '^[A-Za-z0-9+/=`r`n]+$' -and ($raw.Length %% 4 -eq 0)) {
+            try {
+              $bytes = [Convert]::FromBase64String($raw)
+              [IO.File]::WriteAllBytes($keyPath, $bytes)
+            } catch {
+              $raw = $raw -replace "`r`n","`n"
+              [System.IO.File]::WriteAllText($keyPath, $raw, [System.Text.Encoding]::UTF8)
+            }
+          } else {
+            $raw = $raw -replace "`r`n","`n"
+            [System.IO.File]::WriteAllText($keyPath, $raw, [System.Text.Encoding]::UTF8)
+          }
+
           icacls $keyPath /inheritance:r /grant:r "$(whoami):R" | Out-Null
           $sshTarget = "$($env:SERVER_USER)@$($env:SERVER_HOST)"
-          Get-Content deploy.sh | ssh -i $keyPath -o StrictHostKeyChecking=no $sshTarget 'bash -s'
-          Remove-Item -Force $keyPath
+
+          # Test SSH connection non-interactively
+          $sshTest = & ssh -i $keyPath -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 $sshTarget 'echo ok' 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "SSH connection test failed: $sshTest"
+            Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
+            exit 1
+          }
+
+          # Pipe deploy script to remote bash
+          Get-Content deploy.sh | & ssh -i $keyPath -o StrictHostKeyChecking=no $sshTarget 'bash -s'
+          $ret = $LASTEXITCODE
+          Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
+          exit $ret
 
       - name: Notify deployment status
         if: always()
