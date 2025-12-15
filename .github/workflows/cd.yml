@@ -112,7 +112,7 @@ jobs:
           Set-Content -Path $keyPath -Value $env:SERVER_SSH_KEY -NoNewline
           icacls $keyPath /inheritance:r /grant:r "$(whoami):R" | Out-Null
           $sshTarget = "$($env:SERVER_USER)@$($env:SERVER_HOST)"
-          ssh -i $keyPath -o StrictHostKeyChecking=no $sshTarget 'bash -s' < deploy.sh
+          Get-Content deploy.sh | ssh -i $keyPath -o StrictHostKeyChecking=no $sshTarget 'bash -s'
           Remove-Item -Force $keyPath
 
       - name: Notify deployment status
