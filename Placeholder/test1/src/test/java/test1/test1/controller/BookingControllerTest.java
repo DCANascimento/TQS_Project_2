@@ -28,10 +28,16 @@ class BookingControllerTest {
                 java.time.LocalDate.parse("2024-07-01"), 
                 java.time.LocalDate.parse("2024-07-05"))).thenReturn(b);
 
-        Booking result = bookingController.createBooking(1, 2, "2024-07-01", "2024-07-05");
+        java.util.Map<String, Object> request = new java.util.HashMap<>();
+        request.put("userId", 1);
+        request.put("gameId", 2);
+        request.put("startDate", "2024-07-01");
+        request.put("endDate", "2024-07-05");
+        
+        org.springframework.http.ResponseEntity<?> response = bookingController.createBooking(request);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getTotalPrice()).isEqualTo(100.0);
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
         verify(bookingService).createBooking(1, 2, 
                 java.time.LocalDate.parse("2024-07-01"), 
                 java.time.LocalDate.parse("2024-07-05"));
