@@ -3,9 +3,11 @@ package test1.test1.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,6 +64,7 @@ public class GameController {
                 request.getPrice(),
                 request.getCondition(),
                 request.getPhotos(),
+                request.getTags(),
                 isActive,
                 request.getParsedStartDate(),
                 request.getParsedEndDate(),
@@ -72,7 +75,7 @@ public class GameController {
             
             return ResponseEntity.ok(game);
         } catch (Exception e) {
-            // e.printStackTrace(); Uncomment for debuging
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -87,5 +90,91 @@ public class GameController {
         return gameService.getGameById(id)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/owner/{ownerUsername}")
+    public ResponseEntity<List<Game>> getGamesByOwner(@PathVariable String ownerUsername) {
+        List<Game> games = gameService.getGamesByOwner(ownerUsername);
+        return ResponseEntity.ok(games);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Game> updateGame(@PathVariable Integer id, @RequestBody GameRequest request, 
+                                          jakarta.servlet.http.HttpSession session) {
+        try {
+            // Get username from session
+            String username = (String) session.getAttribute("username");
+            if (username == null || username.isEmpty()) {
+                Integer userId = (Integer) session.getAttribute("userId");
+                if (userId != null) {
+                    java.util.Optional<test1.test1.model.User> userOpt = userService.getUserById(userId);
+                    if (userOpt.isPresent()) {
+                        username = userOpt.get().getUsername();
+                    }
+                }
+            }
+
+            // Verify ownership
+            java.util.Optional<Game> gameOpt = gameService.getGameById(id);
+            if (gameOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            if (!gameOpt.get().getOwnerUsername().equals(username) && !gameOpt.get().getOwnerUsername().equals(request.getOwnerUsername())) {
+                return ResponseEntity.status(403).build(); // Forbidden
+            }
+
+            boolean isActive = Boolean.TRUE.equals(request.getActive());
+            
+            Game updatedGame = gameService.updateGame(
+                id,
+                request.getTitle(),
+                request.getDescription(),
+                request.getPrice(),
+                request.getCondition(),
+                request.getPhotos(),
+                request.getTags(),
+                isActive,
+                request.getParsedStartDate(),
+                request.getParsedEndDate()
+            );
+
+            if (updatedGame != null) {
+                return ResponseEntity.ok(updatedGame);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGame(@PathVariable Integer id, jakarta.servlet.http.HttpSession session) {
+        try {
+            // Get username from session
+            String username = (String) session.getAttribute("username");
+            if (username == null || username.isEmpty()) {
+                Integer userId = (Integer) session.getAttribute("userId");
+                if (userId != null) {
+                    java.util.Optional<test1.test1.model.User> userOpt = userService.getUserById(userId);
+                    if (userOpt.isPresent()) {
+                        username = userOpt.get().getUsername();
+                    }
+                }
+            }
+
+            if (username == null || username.isEmpty()) {
+                return ResponseEntity.status(401).build(); // Unauthorized
+            }
+
+            boolean deleted = gameService.deleteGame(id, username);
+            if (deleted) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.status(403).build(); // Forbidden or not found
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
