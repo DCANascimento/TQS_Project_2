@@ -1,13 +1,15 @@
 package test1.test1.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,9 +19,6 @@ import org.springframework.http.ResponseEntity;
 
 import test1.test1.model.User;
 import test1.test1.service.UserService;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest { 
@@ -208,6 +207,28 @@ class UserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         verify(userService).updateUser(12, null, null);
+    }
+
+    @Test
+    void deleteUser_success() {
+        when(userService.deleteUser(5)).thenReturn(true);
+
+        ResponseEntity<Void> response = userController.deleteUser(5);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
+        verify(userService).deleteUser(5);
+    }
+
+    @Test
+    void deleteUser_notFound() {
+        when(userService.deleteUser(999)).thenReturn(false);
+
+        ResponseEntity<Void> response = userController.deleteUser(999);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNull();
+        verify(userService).deleteUser(999);
     }
 
 }
