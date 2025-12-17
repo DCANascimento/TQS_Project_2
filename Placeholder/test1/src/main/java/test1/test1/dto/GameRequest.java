@@ -8,6 +8,7 @@ public class GameRequest {
     private Double price;
     private String condition;
     private String photos;
+    private String tags;
     private Boolean active;
     private String startDate;
     private String endDate;
@@ -55,6 +56,14 @@ public class GameRequest {
 
     public void setPhotos(String photos) {
         this.photos = photos;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     public Boolean getActive() {

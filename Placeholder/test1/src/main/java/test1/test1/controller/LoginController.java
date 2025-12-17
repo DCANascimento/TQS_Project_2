@@ -30,4 +30,19 @@ public class LoginController {
     public String bookingRequests() {
         return "bookingrequests";
     }
+
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile";
+    }
+
+    @GetMapping("/gamedetails")
+    public String gameDetails() {
+        return "gamedetails";
+    }
+
+    @GetMapping("/rent")
+    public String rent() {
+        return "rent";
+    }
 }

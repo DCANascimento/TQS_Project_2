@@ -1,0 +1,569 @@
+/* Game Details Page Styles */
+
+.main-content {
+    padding: var(--space-2xl) 0;
+    min-height: calc(100vh - 80px);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+/* Back Navigation */
+.back-nav {
+    margin-bottom: var(--space-xl);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--font-primary);
+    font-size: var(--font-size-sm);
+    transition: var(--transition-fast);
+}
+
+.back-link:hover {
+    color: var(--text-primary);
+    transform: translateX(-4px);
+}
+
+.back-arrow {
+    font-size: var(--font-size-lg);
+}
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    min-height: 400px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-state p {
+    margin-top: var(--space-lg);
+    color: var(--text-secondary);
+    font-family: var(--font-primary);
+}
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    min-height: 400px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-lg);
+}
+
+.error-state h2 {
+    font-family: var(--font-primary);
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.error-state p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xl);
+}
+
+/* Game Details Card */
+.game-details-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+#game-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+    padding: var(--space-2xl);
+}
+
+/* Image Gallery */
+.game-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.main-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--panel-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--panel-light), var(--panel));
+}
+
+.placeholder-icon {
+    font-size: 5rem;
+    opacity: 0.3;
+}
+
+.thumbnail-strip {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    padding: var(--space-xs) 0;
+}
+
+.thumbnail {
+    flex-shrink: 0;
+    width: 80px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    background: var(--panel-light);
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    border-color: var(--accent);
+    box-shadow: var(--glow-accent);
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Game Info */
+.game-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-lg);
+}
+
+.game-title {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-3xl);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.game-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.available {
+    background: rgba(87, 255, 138, 0.1);
+    color: var(--accent-tertiary);
+    border: 1px solid var(--accent-tertiary);
+}
+
+.status-badge.rented {
+    background: rgba(255, 77, 109, 0.1);
+    color: var(--accent-secondary);
+    border: 1px solid var(--accent-secondary);
+}
+
+/* Game Meta */
+.game-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.meta-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.meta-value.price {
+    color: var(--accent);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-xl);
+}
+
+/* Description */
+.game-description h2,
+.owner-section h2,
+.availability-section h2 {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.game-description p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+/* Owner Section */
+.owner-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.owner-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-primary);
+    font-size: var(--font-size-xl);
+    color: var(--text-primary);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.owner-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.owner-name {
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.owner-rating {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    color: #ffd700;
+    font-size: var(--font-size-sm);
+}
+
+.star.empty {
+    color: var(--text-muted);
+}
+
+.rating-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Availability Section */
+.calendar-legend {
+    display: flex;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.legend-color.available {
+    background: rgba(87, 255, 138, 0.2);
+    border-color: var(--accent-tertiary);
+    box-shadow: 0 0 8px rgba(87, 255, 138, 0.3);
+}
+
+.legend-color.unavailable {
+    background: rgba(255, 77, 109, 0.2);
+    border-color: var(--accent-secondary);
+}
+
+.legend-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.calendar-container {
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.calendar-title {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.calendar-nav {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-size: var(--font-size-lg);
+    font-weight: bold;
+}
+
+.calendar-nav:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    box-shadow: var(--glow-accent);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+.weekday {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--space-xs);
+    font-weight: 600;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-xs);
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: default;
+    transition: var(--transition-fast);
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.calendar-day.empty {
+    visibility: hidden;
+}
+
+.calendar-day.other-month {
+    color: var(--text-muted);
+    opacity: 0.3;
+}
+
+.calendar-day.today {
+    border-color: var(--accent);
+    font-weight: 700;
+}
+
+.calendar-day.available {
+    background: rgba(87, 255, 138, 0.15);
+    color: var(--accent-tertiary);
+    border-color: rgba(87, 255, 138, 0.3);
+}
+
+.calendar-day.available:hover {
+    background: rgba(87, 255, 138, 0.25);
+    box-shadow: 0 0 10px rgba(87, 255, 138, 0.3);
+    transform: scale(1.05);
+}
+
+.calendar-day.unavailable {
+    background: rgba(255, 77, 109, 0.1);
+    color: var(--text-muted);
+    border-color: rgba(255, 77, 109, 0.2);
+}
+
+.calendar-day.rented {
+    background: rgba(255, 77, 109, 0.2);
+    color: var(--accent-secondary);
+    border-color: rgba(255, 77, 109, 0.4);
+    cursor: not-allowed;
+}
+
+/* Action Section */
+.action-section {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.btn-large {
+    flex: 1;
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-size-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    #game-content {
+        grid-template-columns: 1fr;
+    }
+
+    .game-gallery {
+        order: 1;
+    }
+
+    .game-info {
+        order: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    #game-content {
+        padding: var(--space-lg);
+    }
+
+    .game-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .game-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .date-range {
+        grid-template-columns: 1fr;
+    }
+
+    .action-section {
+        flex-direction: column;
+    }
+
+    .btn-large {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-header {
+        flex-direction: column;
+    }
+
+    .game-title {
+        font-size: var(--font-size-xl);
+    }
+}

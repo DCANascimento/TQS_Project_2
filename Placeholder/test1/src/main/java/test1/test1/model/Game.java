@@ -30,7 +30,10 @@ public class Game {
     private String condition;
 
     @Column(length = 1000)
-    private String photos; // Stored as comma-separated base64 strings or URLs
+    private String photos; // Stored as comma-separated file paths (e.g., /images/game_images/filename.png)
+
+    @Column(length = 500)
+    private String tags; // Stored as comma-separated tags (e.g., PlayStation,Action,Multiplayer)
 
     private boolean active = true;
 
@@ -44,7 +47,8 @@ public class Game {
     @Column(nullable = false)
     private LocalDate createdAt;
 
-    protected Game() {
+    
+    public Game() {
         this.createdAt = LocalDate.now();
     }
 
@@ -55,6 +59,7 @@ public class Game {
         this.pricePerDay = pricePerDay;
         this.condition = "good";
         this.photos = "";
+        this.tags = "";
         this.active = true;
         this.startDate = null;
         this.endDate = null;
@@ -63,12 +68,13 @@ public class Game {
     }
 
     public Game(String title, String description, double pricePerDay, String condition, 
-                String photos, boolean active, LocalDate startDate, LocalDate endDate, String ownerUsername) {
+                String photos, String tags, boolean active, LocalDate startDate, LocalDate endDate, String ownerUsername) {
         this.title = title;
         this.description = description;
         this.pricePerDay = pricePerDay;
         this.condition = condition;
         this.photos = photos;
+        this.tags = tags;
         this.active = active;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -123,6 +129,14 @@ public class Game {
 
     public void setPhotos(String photos) {
         this.photos = photos;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     public boolean isActive() {

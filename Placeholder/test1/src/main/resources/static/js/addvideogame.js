@@ -78,18 +78,32 @@ async function handleFormSubmit(e) {
         const currentUser = JSON.parse(storedData || '{}');
         const ownerUsername = currentUser.username || "null";
 
+        // Upload images first and get paths
+        console.log('Starting image upload...');
+        let photoPaths = [];
+        try {
+            photoPaths = await uploadImages();
+            console.log('Images uploaded successfully:', photoPaths);
+        } catch (uploadError) {
+            console.error('Image upload failed:', uploadError);
+            // Continue without images rather than failing completely
+            photoPaths = [];
+        }
+
         // Collect form data
         const formData = {
             title: document.getElementById('game-title').value.trim(),
             description: document.getElementById('game-description').value.trim(),
             condition: document.getElementById('game-condition').value,
-            photos: collectPhotoUrls(),
+            photos: photoPaths.join(','), // Store comma-separated paths
             price: parseFloat(document.getElementById('rental-price').value),
             active: document.getElementById('availability-toggle').checked,
-            startDate: document.getElementById('start-date').value,
-            endDate: document.getElementById('end-date').value,
+            startDate: document.getElementById('start-date').value || null,
+            endDate: document.getElementById('end-date').value || null,
             ownerUsername: ownerUsername
         };
+
+        console.log('Submitting game data:', formData);
 
         // Send to backend
         const response = await fetch('/games', {
@@ -100,8 +114,12 @@ async function handleFormSubmit(e) {
             body: JSON.stringify(formData)
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error('Failed to create listing');
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            throw new Error('Failed to create listing: ' + response.status);
         }
 
         const result = await response.json();
@@ -112,8 +130,8 @@ async function handleFormSubmit(e) {
 
     } catch (error) {
         console.error('Error publishing listing:', error);
-        // Show error message
-        showErrorMessage('Failed to publish listing. Please try again.');
+        // Show error message with more detail
+        showErrorMessage('Failed to publish listing: ' + error.message);
 
     } finally {
         // Reset button state
@@ -124,13 +142,58 @@ async function handleFormSubmit(e) {
 }
 
 function collectPhotoUrls() {
-    // Collect photo file names or URLs from the photo preview
+    // Collect image paths from the photo preview (now storing file paths from backend)
     const photoPreview = document.getElementById('photo-preview');
     if (!photoPreview) return '';
 
     const images = photoPreview.querySelectorAll('img');
-    const urls = Array.from(images).map(img => img.src.split('/').pop());
-    return urls.join(',');
+    const paths = Array.from(images).map(img => img.dataset.imagePath || '');
+    return paths.filter(path => path).join(',');
+}
+
+async function uploadImages() {
+    // Upload images to backend and get paths
+    const photoPreview = document.getElementById('photo-preview');
+    if (!photoPreview) return [];
+
+    const images = photoPreview.querySelectorAll('img');
+    const imagePaths = [];
+
+    for (const img of images) {
+        // Skip if already has a path (shouldn't happen on first upload)
+        if (img.dataset.imagePath) {
+            imagePaths.push(img.dataset.imagePath);
+            continue;
+        }
+
+        // Convert data URL to blob
+        const response = await fetch(img.src);
+        const blob = await response.blob();
+
+        // Create FormData and upload
+        const formData = new FormData();
+        formData.append('file', blob, `game_image_${Date.now()}.png`);
+
+        try {
+            const uploadResponse = await fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (uploadResponse.ok) {
+                const result = await uploadResponse.json();
+                imagePaths.push(result.imagePath);
+                img.dataset.imagePath = result.imagePath;
+            } else {
+                throw new Error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            throw new Error('Failed to upload one or more images');
+        }
+    }
+
+    return imagePaths;
 }
 
 function handleCancel() {
