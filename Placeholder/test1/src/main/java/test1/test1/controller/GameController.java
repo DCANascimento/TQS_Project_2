@@ -75,7 +75,6 @@ public class GameController {
             
             return ResponseEntity.ok(game);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -143,7 +142,6 @@ public class GameController {
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -173,7 +171,6 @@ public class GameController {
             }
             return ResponseEntity.status(403).build(); // Forbidden or not found
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }

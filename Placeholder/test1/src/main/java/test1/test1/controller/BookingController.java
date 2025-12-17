@@ -67,7 +67,6 @@ public class BookingController {
             return ResponseEntity.badRequest()
                 .body(Map.of("message", "Invalid userId or gameId format"));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500)
                 .body(Map.of("message", "Failed to create booking: " + e.getMessage()));
         }
