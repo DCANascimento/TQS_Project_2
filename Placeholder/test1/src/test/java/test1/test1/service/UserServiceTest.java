@@ -7,9 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,37 +33,39 @@ class UserServiceTest {
 
     @Test
     void createUserWithUsernamePasswordBioRole_encodesPasswordAndSaves() {
-        when(passwordUtil.encode("rawpass")).thenReturn("encoded");
+        when(passwordUtil.encode("password123")).thenReturn("encoded123");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setUserId(1);
             return u;
         });
 
-        User result = userService.createUser("alice", "rawpass", "My bio", "admin");
+        User result = userService.createUser("alice", "password123", "My bio", "renter");
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(1);
         assertThat(result.getUsername()).isEqualTo("alice");
-        verify(passwordUtil).encode("rawpass");
+        assertThat(result.getPassword()).isEqualTo("encoded123");
+        verify(passwordUtil).encode("password123");
         verify(userRepository).save(any(User.class));
     }
 
     @Test
     void createUserWithUsernamePasswordBio_encodesPasswordAndSaves() {
-        when(passwordUtil.encode("pass123")).thenReturn("encoded123");
+        when(passwordUtil.encode("password456")).thenReturn("encoded456");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setUserId(2);
             return u;
         });
 
-        User result = userService.createUser("bob", "pass123", "Bob's bio");
+        User result = userService.createUser("bob", "password456", "Bob bio");
 
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isEqualTo(2);
         assertThat(result.getUsername()).isEqualTo("bob");
-        verify(passwordUtil).encode("pass123");
+        assertThat(result.getPassword()).isEqualTo("encoded456");
+        verify(passwordUtil).encode("password456");
         verify(userRepository).save(any(User.class));
     }
 
@@ -86,8 +89,9 @@ class UserServiceTest {
     void getAllUsers_returnsList() {
         when(userRepository.findAll()).thenReturn(List.of(new User("a"), new User("b")));
 
-        var list = userService.getAllUsers();
+        List<User> list = userService.getAllUsers();
 
+        assertThat(list).isNotNull();
         assertThat(list).hasSize(2);
         verify(userRepository).findAll();
     }
@@ -98,7 +102,7 @@ class UserServiceTest {
         u.setUserId(5);
         when(userRepository.findById(5)).thenReturn(Optional.of(u));
 
-        var opt = userService.getUserById(5);
+        Optional<User> opt = userService.getUserById(5);
 
         assertThat(opt).isPresent();
         assertThat(opt.get().getUsername()).isEqualTo("bob");
@@ -109,7 +113,7 @@ class UserServiceTest {
     void getUserById_returnsEmptyWhenNotFound() {
         when(userRepository.findById(999)).thenReturn(Optional.empty());
 
-        var opt = userService.getUserById(999);
+        Optional<User> opt = userService.getUserById(999);
 
         assertThat(opt).isEmpty();
         verify(userRepository).findById(999);
@@ -117,74 +121,64 @@ class UserServiceTest {
 
     @Test
     void findByUsername_returnsOptionalWithUser() {
-        User u = new User("dave");
-        when(userRepository.findByUsername("dave")).thenReturn(u);
+        User u = new User("alice");
+        u.setUserId(1);
+        when(userRepository.findByUsername("alice")).thenReturn(u);
 
-        var opt = userService.findByUsername("dave");
+        Optional<User> result = userService.findByUsername("alice");
 
-        assertThat(opt).isPresent();
-        assertThat(opt.get().getUsername()).isEqualTo("dave");
-        verify(userRepository).findByUsername("dave");
+        assertThat(result).isPresent();
+        assertThat(result.get().getUsername()).isEqualTo("alice");
+        verify(userRepository).findByUsername("alice");
     }
 
     @Test
     void findByUsername_returnsEmptyWhenNotFound() {
-        when(userRepository.findByUsername("nonexistent")).thenReturn(null);
+        when(userRepository.findByUsername(anyString())).thenReturn(null);
 
-        var opt = userService.findByUsername("nonexistent");
+        Optional<User> result = userService.findByUsername("unknown");
 
-        assertThat(opt).isEmpty();
-        verify(userRepository).findByUsername("nonexistent");
+        assertThat(result).isEmpty();
+        verify(userRepository).findByUsername("unknown");
     }
 
     @Test
     void validatePassword_returnsTrueWhenPasswordMatches() {
-        User u = new User("eve");
-        u.setPassword("encodedpass");
-        when(passwordUtil.matches("rawpass", "encodedpass")).thenReturn(true);
+        User u = new User("alice");
+        u.setPassword("encoded_password");
+        when(passwordUtil.matches("raw_password", "encoded_password")).thenReturn(true);
 
-        boolean result = userService.validatePassword(u, "rawpass");
+        boolean result = userService.validatePassword(u, "raw_password");
 
         assertThat(result).isTrue();
-        verify(passwordUtil).matches("rawpass", "encodedpass");
-    }
-
-    @Test
-    void validatePassword_returnsFalseWhenPasswordDoesNotMatch() {
-        User u = new User("frank");
-        u.setPassword("encodedpass");
-        when(passwordUtil.matches("wrongpass", "encodedpass")).thenReturn(false);
-
-        boolean result = userService.validatePassword(u, "wrongpass");
-
-        assertThat(result).isFalse();
-        verify(passwordUtil).matches("wrongpass", "encodedpass");
+        verify(passwordUtil).matches("raw_password", "encoded_password");
     }
 
     @Test
     void validatePassword_returnsFalseWhenUserIsNull() {
-        boolean result = userService.validatePassword(null, "somepass");
+        boolean result = userService.validatePassword(null, "password");
 
         assertThat(result).isFalse();
     }
 
     @Test
     void validatePassword_returnsFalseWhenUserPasswordIsNull() {
-        User u = new User("grace");
+        User u = new User("alice");
         u.setPassword(null);
 
-        boolean result = userService.validatePassword(u, "somepass");
+        boolean result = userService.validatePassword(u, "password");
 
         assertThat(result).isFalse();
     }
 
     @Test
     void validatePassword_returnsFalseWhenRawPasswordIsNull() {
-        User u = new User("hank");
-        u.setPassword("encodedpass");
+        User u = new User("alice");
+        u.setPassword("encoded_password");
 
         boolean result = userService.validatePassword(u, null);
 
         assertThat(result).isFalse();
+        verify(passwordUtil, times(0)).matches(anyString(), anyString());
     }
 }

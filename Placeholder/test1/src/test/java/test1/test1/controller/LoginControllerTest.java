@@ -1,17 +1,16 @@
 package test1.test1.controller;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.junit.jupiter.api.BeforeEach;
 
 @SpringBootTest
 @WebAppConfiguration
@@ -61,5 +60,26 @@ public class LoginControllerTest {
         mockMvc.perform(get("/bookingrequests"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("bookingrequests"));
+    }
+
+    @Test
+    void profilePageTest() throws Exception {
+        mockMvc.perform(get("/profile"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile"));
+    }
+
+    @Test
+    void gameDetailsPageTest() throws Exception {
+        mockMvc.perform(get("/gamedetails"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("gamedetails"));
+    }
+
+    @Test
+    void rentPageTest() throws Exception {
+        mockMvc.perform(get("/rent"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("rent"));
     }
 }

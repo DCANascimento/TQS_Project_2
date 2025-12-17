@@ -45,4 +45,9 @@ public class LoginController {
     public String admin() {
         return "admin";
     }
+    
+    @GetMapping("/rent")
+    public String rent() {
+        return "rent";
+    }
 }
