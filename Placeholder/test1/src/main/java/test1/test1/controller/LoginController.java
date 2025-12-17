@@ -41,6 +41,11 @@ public class LoginController {
         return "gamedetails";
     }
 
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
+    
     @GetMapping("/rent")
     public String rent() {
         return "rent";

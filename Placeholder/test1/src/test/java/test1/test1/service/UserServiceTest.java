@@ -181,4 +181,73 @@ class UserServiceTest {
         assertThat(result).isFalse();
         verify(passwordUtil, times(0)).matches(anyString(), anyString());
     }
+
+    @Test
+    void updateUser_success_updatesUsernameAndBio() {
+        User existing = new User("oldName");
+        existing.setUserId(10);
+        existing.setBio("old bio");
+
+        when(userRepository.findById(10)).thenReturn(Optional.of(existing));
+        when(userRepository.save(existing)).thenReturn(existing);
+
+        User result = userService.updateUser(10, "newName", "new bio");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo("newName");
+        assertThat(result.getBio()).isEqualTo("new bio");
+        verify(userRepository).findById(10);
+        verify(userRepository).save(existing);
+    }
+
+    @Test
+    void updateUser_partialUpdate_onlyUsername() {
+        User existing = new User("oldName");
+        existing.setUserId(11);
+        existing.setBio("existing bio");
+
+        when(userRepository.findById(11)).thenReturn(Optional.of(existing));
+        when(userRepository.save(existing)).thenReturn(existing);
+
+        User result = userService.updateUser(11, "newName", null);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo("newName");
+        assertThat(result.getBio()).isEqualTo("existing bio");
+        verify(userRepository).save(existing);
+    }
+
+    @Test
+    void updateUser_userNotFound_returnsNull() {
+        when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+        User result = userService.updateUser(999, "name", "bio");
+
+        assertThat(result).isNull();
+        verify(userRepository).findById(999);
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void deleteUser_success_returnsTrue() {
+        when(userRepository.existsById(20)).thenReturn(true);
+
+        boolean result = userService.deleteUser(20);
+
+        assertThat(result).isTrue();
+        verify(userRepository).existsById(20);
+        verify(userRepository).deleteById(20);
+    }
+
+    @Test
+    void deleteUser_notFound_returnsFalse() {
+        when(userRepository.existsById(404)).thenReturn(false);
+
+        boolean result = userService.deleteUser(404);
+
+        assertThat(result).isFalse();
+        verify(userRepository).existsById(404);
+        verify(userRepository, times(0)).deleteById(any());
+    }
+
 }
