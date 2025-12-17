@@ -183,7 +183,6 @@ public class GameController {
         } catch (Exception e) {
             // Server error - database issues, service failures, etc.
             System.err.println("Error deleting game: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
