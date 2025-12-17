@@ -22,7 +22,6 @@ class GameListings {
             maxHandle: document.getElementById('max-handle'),
             sliderRange: document.getElementById('slider-range'),
             priceSliderContainer: document.querySelector('.price-slider-container'),
-            ratingFilter: document.getElementById('rating-filter'),
             sortFilter: document.getElementById('sort-filter'),
             listingsGrid: document.getElementById('listings-grid'),
             noResults: document.getElementById('no-results'),
@@ -54,21 +53,43 @@ class GameListings {
             const games = await response.json();
 
             // Transform backend Game model to frontend format
-            this.allGames = games.map(game => ({
-                id: game.gameId,
-                title: game.title,
-                platform: 'pc', // Default platform since backend doesn't have this field
-                category: 'other', // Default category since backend doesn't have this field
-                description: game.description,
-                status: game.active ? 'available' : 'rented',
-                dateAdded: game.createdAt,
-                price: game.pricePerDay,
-                photos: game.photos, // Include photos from backend
-                owner: {
-                    name: game.ownerUsername || 'Unknown',
-                    rating: 4.5 // Default rating since backend doesn't have this field
+            this.allGames = games.map(game => {
+                // Parse tags to extract platform and category
+                const tags = game.tags ? game.tags.split(',').map(t => t.trim()) : [];
+                const platformTags = ['PlayStation', 'Xbox', 'Nintendo Switch', 'PC'];
+                const categoryTags = ['Action', 'Adventure', 'RPG', 'Sports', 'Shooter', 'Puzzle', 'Horror', 'Platformer'];
+
+                // Find platform from tags
+                let platform = 'pc'; // default
+                const foundPlatform = tags.find(tag => platformTags.includes(tag));
+                if (foundPlatform) {
+                    platform = foundPlatform.toLowerCase().replace(' ', '');
+                    if (foundPlatform === 'Nintendo Switch') platform = 'nintendo';
                 }
-            }));
+
+                // Find category from tags
+                let category = 'other'; // default
+                const foundCategory = tags.find(tag => categoryTags.includes(tag));
+                if (foundCategory) {
+                    category = foundCategory.toLowerCase();
+                }
+
+                return {
+                    id: game.gameId,
+                    title: game.title,
+                    platform: platform,
+                    category: category,
+                    tags: tags, // Store all tags
+                    description: game.description,
+                    status: game.active ? 'available' : 'rented',
+                    dateAdded: game.createdAt,
+                    price: game.pricePerDay,
+                    photos: game.photos,
+                    owner: {
+                        name: game.ownerUsername || 'Unknown'
+                    }
+                };
+            });
 
             this.currentGames = [...this.allGames];
         } catch (error) {
@@ -314,10 +335,6 @@ class GameListings {
         // Price range custom slider
         this.initSliderEvents();
 
-        this.elements.ratingFilter?.addEventListener('change', (e) => {
-            this.handleRatingFilter(e.target.value);
-        });
-
         this.elements.sortFilter?.addEventListener('change', (e) => {
             this.handleSort(e.target.value);
         });
@@ -390,9 +407,6 @@ class GameListings {
             </div>
             <div class="detail-item">
               <strong>Owner:</strong> ${game.owner.name}
-            </div>
-            <div class="detail-item">
-              <strong>Owner Rating:</strong> ${game.owner.rating.toFixed(1)} ⭐
             </div>
           </div>
           <div class="game-description-full">
@@ -549,10 +563,6 @@ class GameListings {
         }
     }
 
-    handleRatingFilter(rating) {
-        this.applyFilters();
-    }
-
     handleSort(sortBy) {
         this.sortGames(sortBy);
         this.renderGames();
@@ -570,12 +580,12 @@ class GameListings {
         const selectedPlatform = this.elements.platformFilter?.value || '';
         const minPrice = this.minPrice;
         const maxPrice = this.maxPrice;
-        const selectedRating = this.elements.ratingFilter?.value || '';
 
         this.currentGames = this.allGames.filter(game => {
             const matchesSearch = game.title.toLowerCase().includes(searchTerm) ||
                 game.description.toLowerCase().includes(searchTerm) ||
-                game.owner.name.toLowerCase().includes(searchTerm);
+                game.owner.name.toLowerCase().includes(searchTerm) ||
+                (game.tags && game.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
 
             const matchesCategory = !selectedCategory || game.category === selectedCategory;
             const matchesPlatform = !selectedPlatform || game.platform === selectedPlatform;
@@ -583,14 +593,7 @@ class GameListings {
             // Price range filtering with sliders
             const matchesPrice = game.price >= minPrice && game.price <= maxPrice;
 
-            // Owner rating filtering
-            let matchesRating = true;
-            if (selectedRating) {
-                const minRating = parseInt(selectedRating);
-                matchesRating = game.owner.rating >= minRating;
-            }
-
-            return matchesSearch && matchesCategory && matchesPlatform && matchesPrice && matchesRating;
+            return matchesSearch && matchesCategory && matchesPlatform && matchesPrice;
         });
 
         // Apply current sort
@@ -615,12 +618,6 @@ class GameListings {
                 break;
             case 'price-high':
                 this.currentGames.sort((a, b) => b.price - a.price);
-                break;
-            case 'rating':
-                this.currentGames.sort((a, b) => b.owner.rating - a.owner.rating);
-                break;
-            case 'platform':
-                this.currentGames.sort((a, b) => a.platform.localeCompare(b.platform));
                 break;
         }
     }
@@ -650,20 +647,8 @@ class GameListings {
             retro: 'Retro'
         };
 
-        // Create star rating display
-        const rating = Math.floor(game.owner.rating);
-        const hasHalfStar = game.owner.rating % 1 >= 0.5;
-        let starsHtml = '';
-
-        for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-                starsHtml += '<span class="star">★</span>';
-            } else if (i === rating + 1 && hasHalfStar) {
-                starsHtml += '<span class="star">☆</span>';
-            } else {
-                starsHtml += '<span class="star empty">☆</span>';
-            }
-        }
+        const statusClass = game.status === 'available' ? 'available' : 'rented';
+        const statusText = game.status === 'available' ? 'Available' : 'Rented';
 
         // Get first photo if available
         let imageHtml = '';
@@ -686,9 +671,8 @@ class GameListings {
           <div class="game-owner">
             <div class="owner-info">
               <div class="owner-name">Owner: ${game.owner.name}</div>
-              <div class="owner-rating">
-                <div class="stars">${starsHtml}</div>
-                <span class="rating-text">(${game.owner.rating.toFixed(1)})</span>
+            </div>
+          </div>
               </div>
             </div>
           </div>

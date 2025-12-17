@@ -31,6 +31,11 @@ public class LoginController {
         return "bookingrequests";
     }
 
+    @GetMapping("/mylistings")
+    public String myListings() {
+        return "mylistings";
+    }
+
     @GetMapping("/profile")
     public String profile() {
         return "profile";
