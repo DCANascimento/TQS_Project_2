@@ -158,3 +158,24 @@ jobs:
 
           Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
 
+  smoke-test:
+    needs: deploy-to-server
+    runs-on: [self-hosted]
+    if: success()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          curl -fsSL https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6.gpg
+          echo "deb [signed-by=/usr/share/keyrings/k6.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt update
+          sudo apt install -y k6
+
+      - name: Run smoke test
+        env:
+          BASE_URL: http://${{ secrets.SERVER_HOST }}:${{ env.HOST_PORT }}
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
+        run: |
+          k6 cloud k6/smoke-test.js
