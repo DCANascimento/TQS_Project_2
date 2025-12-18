@@ -160,7 +160,7 @@ jobs:
 
   smoke-test:
     needs: deploy-to-server
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: success()
 
     steps:

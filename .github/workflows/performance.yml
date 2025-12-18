@@ -21,7 +21,7 @@ env:
 
 jobs:
   k6-performance:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout repo
