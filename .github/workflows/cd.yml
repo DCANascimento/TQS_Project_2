@@ -160,7 +160,7 @@ jobs:
 
       - name: Cleanup SSH artifacts
         if: always()
-        shell: powershell
+        shell: powershell -NoProfile -ExecutionPolicy Bypass {0}
         run: |
           Remove-Item -Force -ErrorAction SilentlyContinue `
             "$env:GITHUB_WORKSPACE\deploy_key.pem"
