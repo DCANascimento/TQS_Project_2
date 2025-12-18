@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BitSwap - View Your Rental History">
+    <title>Rental History - BitSwap</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" th:href="@{/css/shared.css}">
+    <link rel="stylesheet" th:href="@{/css/purchasehistory.css}">
+</head>
+
+<body>
+    <!-- Background overlay -->
+    <div class="bg-overlay" aria-hidden="true"></div>
+
+    <!-- Fun background elements -->
+    <div class="particles" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Logo section -->
+            <div class="logo-section">
+                <img th:src="@{/images/applogo.png}" alt="BitSwap Logo" class="header-logo"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback small" style="display: none;">
+                    <span class="logo-text">BitSwap</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation">
+                <ul class="nav-list">
+                    <li><a th:href="@{/listings}" class="nav-link">Listings</a></li>
+                    <li><a th:href="@{/purchasehistory}" class="nav-link active">Rental History</a></li>
+                    <li><a th:href="@{/profile}" class="nav-link">Profile</a></li>
+                </ul>
+            </nav>
+
+            <!-- User actions -->
+            <div class="header-actions">
+                <a th:href="@{/login}" class="header-btn secondary" id="sign-out-btn">Sign Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <!-- Page header -->
+        <section class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">Rental History</h1>
+                <p class="page-subtitle">View all your game rental bookings and their status</p>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalBookings">0</span>
+                        <span class="stat-label">Total Rentals</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="activeBookings">0</span>
+                        <span class="stat-label">Active</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="completedBookings">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalSpent">$0.00</span>
+                        <span class="stat-label">Total Spent</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter and controls -->
+        <section class="filter-section">
+            <div class="filter-container">
+                <div class="filter-controls">
+                    <div class="search-wrapper">
+                        <input type="text" id="searchBookings" class="search-input"
+                            placeholder="Search by game title..." aria-label="Search rental history">
+                        <div class="search-icon">🔍</div>
+                    </div>
+                    <div class="filter-group">
+                        <select id="statusFilter" class="filter-select" aria-label="Filter by status">
+                            <option value="all">All Bookings</option>
+                            <option value="pending">Pending Approval</option>
+                            <option value="approved">Approved</option>
+                            <option value="declined">Declined</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="sortFilter" class="filter-select" aria-label="Sort bookings">
+                            <option value="date-desc">Newest First</option>
+                            <option value="date-asc">Oldest First</option>
+                            <option value="price-desc">Highest Price</option>
+                            <option value="price-asc">Lowest Price</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bookings grid -->
+        <section class="bookings-section">
+            <div class="bookings-container">
+                <div class="bookings-grid" id="bookingsGrid">
+                    <!-- Booking cards will be dynamically inserted here -->
+                </div>
+
+                <!-- Empty state -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">📦</div>
+                    <h3 class="empty-title">No Rental History</h3>
+                    <p class="empty-description">You haven't rented any games yet. Browse our collection and start
+                        your gaming adventure!</p>
+                    <a th:href="@{/listings}" class="btn btn-primary">Browse Games</a>
+                </div>
+
+                <!-- Loading state -->
+                <div class="loading-state" id="loadingState">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your rental history...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script th:src="@{/js/shared.js}"></script>
+    <script th:src="@{/js/purchasehistory.js}"></script>
+</body>
+
+</html>

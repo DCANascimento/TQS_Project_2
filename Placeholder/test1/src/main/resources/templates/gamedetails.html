@@ -42,7 +42,7 @@
             <nav class="main-nav" role="navigation">
                 <ul class="nav-list">
                     <li><a th:href="@{/listings}" class="nav-link">Listings</a></li>
-                    <li><a href="#" class="nav-link">Renter Dashboard</a></li>
+                    <li><a th:href="@{/purchasehistory}" class="nav-link">Rental History</a></li>
                     <li><a th:href="@{/profile}" class="nav-link">Profile</a></li>
                 </ul>
             </nav>
@@ -181,7 +181,7 @@
                                 Contact Owner
                             </button>
                         </div>
-                        
+
                         <!-- Booking Modal -->
                         <div id="booking-modal" class="modal booking-modal" style="display:none;">
                             <div class="modal-content booking-modal-content">
@@ -220,7 +220,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Payment Modal -->
                         <div id="payment-modal" class="modal payment-modal" style="display:none;">
                             <div class="modal-content payment-modal-content">
@@ -271,20 +271,24 @@
                                         <h3 class="section-title">Card Details</h3>
                                         <div class="form-group">
                                             <label for="card-name" class="form-label">Cardholder Name</label>
-                                            <input type="text" id="card-name" class="form-control" placeholder="John Doe">
+                                            <input type="text" id="card-name" class="form-control"
+                                                placeholder="John Doe">
                                         </div>
                                         <div class="form-group">
                                             <label for="card-number" class="form-label">Card Number</label>
-                                            <input type="text" id="card-number" class="form-control" placeholder="4242 4242 4242 4242" maxlength="19">
+                                            <input type="text" id="card-number" class="form-control"
+                                                placeholder="4242 4242 4242 4242" maxlength="19">
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group">
                                                 <label for="card-expiry" class="form-label">Expiry Date</label>
-                                                <input type="text" id="card-expiry" class="form-control" placeholder="MM/YY" maxlength="5">
+                                                <input type="text" id="card-expiry" class="form-control"
+                                                    placeholder="MM/YY" maxlength="5">
                                             </div>
                                             <div class="form-group">
                                                 <label for="card-cvc" class="form-label">CVC</label>
-                                                <input type="text" id="card-cvc" class="form-control" placeholder="123" maxlength="4">
+                                                <input type="text" id="card-cvc" class="form-control" placeholder="123"
+                                                    maxlength="4">
                                             </div>
                                         </div>
                                         <div class="card-info">
@@ -298,7 +302,8 @@
                                         <h3 class="section-title">PayPal Details</h3>
                                         <div class="form-group">
                                             <label for="paypal-email" class="form-label">PayPal Email</label>
-                                            <input type="email" id="paypal-email" class="form-control" placeholder="your@email.com">
+                                            <input type="email" id="paypal-email" class="form-control"
+                                                placeholder="your@email.com">
                                         </div>
                                         <div class="paypal-info">
                                             <p>You will be redirected to PayPal to complete the payment securely.</p>
@@ -311,7 +316,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button id="payment-back-btn" class="btn btn-secondary">Back</button>
-                                    <button id="payment-confirm" class="btn btn-primary" style="gap: 8px; display: flex; align-items: center;">
+                                    <button id="payment-confirm" class="btn btn-primary"
+                                        style="gap: 8px; display: flex; align-items: center;">
                                         <span id="payment-btn-text">Pay Now</span>
                                         <span id="payment-loading" class="button-loader" style="display:none;">
                                             <div class="spinner-small"></div>

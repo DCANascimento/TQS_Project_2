@@ -56,6 +56,11 @@ public class LoginController {
         return "rent";
     }
 
+    @GetMapping("/purchasehistory")
+    public String purchaseHistory() {
+        return "purchasehistory";
+    }
+
     @GetMapping("/bookings/confirmation")
     public String paymentConfirmation() {
         return "paymentconfirmation";
