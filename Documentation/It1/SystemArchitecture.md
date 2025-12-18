@@ -1,1 +1,1 @@
-![Architecture](Images/Architecture.png)
+![Architecture](Images/ArquiteturaProjetoTQS.png)
