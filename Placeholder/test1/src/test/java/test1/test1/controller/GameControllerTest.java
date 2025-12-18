@@ -116,7 +116,7 @@ class GameControllerTest {
 
         when(session.getAttribute("username")).thenReturn("john");
         when(gameService.getGameById(5)).thenReturn(Optional.of(existingGame));
-        when(gameService.updateGame(anyInt(), anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any())).thenReturn(updatedGame);
+        when(gameService.updateGame(anyInt(), any(), any(), any(), anyDouble(), any(), any(), any(), anyBoolean(), any(), any())).thenReturn(updatedGame);
 
         GameRequest request = new GameRequest();
         request.setTitle("New Title");
@@ -188,7 +188,7 @@ class GameControllerTest {
         when(session.getAttribute("userId")).thenReturn(10);
         when(userService.getUserById(10)).thenReturn(Optional.of(user));
         when(gameService.getGameById(8)).thenReturn(Optional.of(existingGame));
-        when(gameService.updateGame(anyInt(), anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any())).thenReturn(updated);
+        when(gameService.updateGame(anyInt(), any(), any(), any(), anyDouble(), any(), any(), any(), anyBoolean(), any(), any())).thenReturn(updated);
 
         GameRequest request = new GameRequest();
         request.setTitle("New");
@@ -208,7 +208,7 @@ class GameControllerTest {
         assertThat(result.getBody().getTitle()).isEqualTo("New");
         verify(userService).getUserById(10);
         verify(gameService).getGameById(8);
-        verify(gameService).updateGame(anyInt(), anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any());
+        verify(gameService).updateGame(anyInt(), any(), any(), any(), anyDouble(), any(), any(), any(), anyBoolean(), any(), any());
     }
 
     @Test
@@ -224,7 +224,7 @@ class GameControllerTest {
         when(session.getAttribute("username")).thenReturn(null);
         when(session.getAttribute("userId")).thenReturn(null);
         when(gameService.getGameById(9)).thenReturn(Optional.of(existingGame));
-        when(gameService.updateGame(anyInt(), anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any())).thenReturn(updatedGame);
+        when(gameService.updateGame(anyInt(), any(), any(), any(), anyDouble(), any(), any(), any(), anyBoolean(), any(), any())).thenReturn(updatedGame);
 
         GameRequest request = new GameRequest();
         request.setOwnerUsername("owner1");
@@ -244,7 +244,7 @@ class GameControllerTest {
         assertThat(result.getBody()).isNotNull();
         assertThat(result.getBody().getTitle()).isEqualTo("New");
         verify(gameService).getGameById(9);
-        verify(gameService).updateGame(anyInt(), anyString(), anyString(), anyDouble(), anyString(), anyString(), anyString(), anyBoolean(), any(), any());
+        verify(gameService).updateGame(anyInt(), any(), any(), any(), anyDouble(), any(), any(), any(), anyBoolean(), any(), any());
     }
 
 
