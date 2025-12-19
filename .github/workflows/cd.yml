@@ -158,6 +158,10 @@ jobs:
 
           Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
 
+      - name: Remove old deploy key if it exists
+        shell: powershell -NoProfile -ExecutionPolicy Bypass {0}
+        run: Remove-Item -Force $env:GITHUB_WORKSPACE\deploy_key.pem -ErrorAction SilentlyContinue
+
   smoke-test:
     needs: deploy-to-server
     runs-on: [self-hosted]
@@ -170,11 +174,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: false
-
-      - name: Remove old deploy key if it exists
-        shell: powershell -NoProfile -ExecutionPolicy Bypass {0}
-        run: Remove-Item -Force $env:GITHUB_WORKSPACE\deploy_key.pem -ErrorAction SilentlyContinue
-        
 
       - name: Install k6
         run: |
