@@ -161,6 +161,9 @@ jobs:
   smoke-test:
     needs: deploy-to-server
     runs-on: [self-hosted]
+    concurrency:
+      group: smoke-test-${{ github.run_id }}
+      cancel-in-progress: true
     if: success()
 
     steps:
