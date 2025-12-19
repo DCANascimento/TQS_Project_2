@@ -1,7 +1,15 @@
 package test1.test1.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "bookings")
@@ -31,7 +39,7 @@ public class Booking {
     @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
     private String status = "PENDING"; // PENDING, APPROVED, DECLINED
 
-    protected Booking() {
+    public Booking() {
         this.status = "PENDING";
     }
 
