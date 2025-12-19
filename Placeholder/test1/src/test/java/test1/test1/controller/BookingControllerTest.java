@@ -1,5 +1,8 @@
 package test1.test1.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +16,6 @@ import test1.test1.model.Booking;
 import test1.test1.model.User;
 import test1.test1.service.BookingService;
 import test1.test1.service.UserService;
-import java.util.Optional;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class BookingControllerTest {
@@ -242,5 +243,60 @@ class BookingControllerTest {
         org.springframework.http.ResponseEntity<?> response = bookingController.getBookingsByUser(7);
 
         assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Test
+    void getBookingById_success() {
+        Booking booking = new Booking(null, null, java.time.LocalDate.now(), java.time.LocalDate.now(), 50.0);
+        booking.setBookingId(1);
+        when(bookingService.getBookingById(1)).thenReturn(Optional.of(booking));
+
+        org.springframework.http.ResponseEntity<?> response = bookingController.getBookingById(1);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(booking);
+    }
+
+    @Test
+    void getBookingById_notFound() {
+        when(bookingService.getBookingById(99)).thenReturn(Optional.empty());
+
+        org.springframework.http.ResponseEntity<?> response = bookingController.getBookingById(99);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.NOT_FOUND);
+        java.util.Map<String, Object> body = (java.util.Map<String, Object>) response.getBody();
+        assertThat(body.get("message")).isEqualTo("Booking not found");
+    }
+
+    @Test
+    void getBookingById_exception() {
+        when(bookingService.getBookingById(1)).thenThrow(new RuntimeException("Database error"));
+
+        org.springframework.http.ResponseEntity<?> response = bookingController.getBookingById(1);
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+        java.util.Map<String, Object> body = (java.util.Map<String, Object>) response.getBody();
+        assertThat(body.get("message").toString()).contains("Error retrieving booking");
+    }
+
+    @Test
+    void getBookingsByOwner_success() {
+        List<Booking> bookings = List.of(new Booking());
+        when(bookingService.getBookingsByOwner("ownerUser")).thenReturn(bookings);
+
+        org.springframework.http.ResponseEntity<List<Booking>> response = bookingController.getBookingsByOwner("ownerUser");
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(bookings);
+    }
+
+    @Test
+    void getBookingsByOwner_exception() {
+        when(bookingService.getBookingsByOwner("ownerUser")).thenThrow(new RuntimeException("Service failure"));
+
+        org.springframework.http.ResponseEntity<List<Booking>> response = bookingController.getBookingsByOwner("ownerUser");
+
+        assertThat(response.getStatusCode()).isEqualTo(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody()).isNull();
     }
 }
