@@ -125,55 +125,65 @@ jobs:
           APP_PORT: ${{ env.APP_PORT }}
           HOST_PORT: ${{ env.HOST_PORT }}
         run: |
-          $keyPath = Join-Path $env:RUNNER_TEMP 'deploy_key.pem'
-
-          # Write SSH key
-          $raw = $env:SERVER_SSH_KEY.Trim()
-          if ($raw.StartsWith('"') -and $raw.EndsWith('"')) { $raw = $raw.Trim('"') }
-
+          # Use System Temp to avoid workspace permission conflicts
+          $keyPath = Join-Path $env:TEMP "deploy_key_$($env:GITHUB_RUN_ID).pem"
+          
           try {
-            $bytes = [Convert]::FromBase64String($raw)
-            [IO.File]::WriteAllBytes($keyPath, $bytes)
-          } catch {
-            $normalized = $raw -replace "`r`n","`n"
-            [IO.File]::WriteAllText($keyPath, $normalized, [Text.Encoding]::ASCII)
+            # 1. Write SSH key
+            $raw = $env:SERVER_SSH_KEY.Trim()
+            if ($raw.StartsWith('"') -and $raw.EndsWith('"')) { $raw = $raw.Trim('"') }
+
+            try {
+              $bytes = [Convert]::FromBase64String($raw)
+              [IO.File]::WriteAllBytes($keyPath, $bytes)
+            } catch {
+              $normalized = $raw -replace "`r`n","`n"
+              [IO.File]::WriteAllText($keyPath, $normalized, [Text.Encoding]::ASCII)
+            }
+
+            # 2. Set strict permissions (Required for SSH on Windows)
+            icacls $keyPath /inheritance:r /grant:r "$($env:USERNAME):R" | Out-Null
+
+            $target = "$($env:SERVER_USER)@$($env:SERVER_HOST)"
+
+            # 3. SSH connectivity test
+            ssh -i $keyPath -o BatchMode=yes -o StrictHostKeyChecking=no $target "echo ok"
+            if ($LASTEXITCODE -ne 0) { throw "SSH connectivity test failed" }
+
+            # 4. Execute Remote Deploy
+            $deployScript = Join-Path $env:GITHUB_WORKSPACE 'scripts\deploy.sh'
+            if (-not (Test-Path $deployScript)) { throw "Deploy script not found at $deployScript" }
+
+            Get-Content $deployScript -Raw |
+              ssh -i $keyPath -o StrictHostKeyChecking=no `
+                  $target `
+                  "bash -s -- $env:REGISTRY $env:IMAGE_NAME $env:CONTAINER_NAME $env:APP_PORT $env:HOST_PORT"
+
+            if ($LASTEXITCODE -ne 0) { throw "Remote deployment script failed" }
+
           }
-
-          icacls $keyPath /inheritance:r /grant:r "$(whoami):R" | Out-Null
-
-          $target = "$($env:SERVER_USER)@$($env:SERVER_HOST)"
-
-          # SSH connectivity test
-          ssh -i $keyPath -o BatchMode=yes -o StrictHostKeyChecking=no $target "echo ok"
-          if ($LASTEXITCODE -ne 0) { Write-Error "SSH test failed"; exit 1 }
-
-          # Pipe deploy.sh (committed in repo) to remote bash
-          $deployScript = Join-Path $env:GITHUB_WORKSPACE 'scripts\deploy.sh'
-          Get-Content $deployScript -Raw |
-            ssh -i $keyPath -o StrictHostKeyChecking=no `
-                $target `
-                "bash -s -- $env:REGISTRY $env:IMAGE_NAME $env:CONTAINER_NAME $env:APP_PORT $env:HOST_PORT"
-
-          if ($LASTEXITCODE -ne 0) { Write-Error "Deployment failed"; exit 1 }
-
-          Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
-
-      - name: Remove old deploy key if it exists
-        shell: powershell -NoProfile -ExecutionPolicy Bypass {0}
-        run: Remove-Item -Force $env:GITHUB_WORKSPACE\deploy_key.pem -ErrorAction SilentlyContinue
+          catch {
+            Write-Error $_.Exception.Message
+            exit 1
+          }
+          finally {
+            # 5. CRITICAL: Reset permissions and Cleanup
+            if (Test-Path $keyPath) {
+              icacls $keyPath /reset | Out-Null
+              Remove-Item -Force $keyPath -ErrorAction SilentlyContinue
+              Write-Host "Cleaned up SSH key and reset permissions."
+            }
+          }
 
   smoke-test:
     needs: deploy-to-server
     runs-on: [self-hosted]
-    concurrency:
-      group: smoke-test-${{ github.run_id }}
-      cancel-in-progress: true
     if: success()
 
     steps:
       - uses: actions/checkout@v4
         with:
-          clean: false
+          clean: true
 
       - name: Install k6
         run: |
