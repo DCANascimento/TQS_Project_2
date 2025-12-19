@@ -18,6 +18,13 @@ export const options = {
 
 export default function () {
   const res = http.get(`${__ENV.BASE_URL}/actuator/health`);
+
+  // This will print the error to your GitHub Actions console
+  if (res.status !== 200) {
+    console.log(`Error: Detected status ${res.status} for URL ${res.url}`);
+    console.log(`Body: ${res.body}`);
+  }
+
   check(res, { 'status 200': r => r.status === 200 });
   sleep(1);
 }
