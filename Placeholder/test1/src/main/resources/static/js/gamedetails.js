@@ -25,7 +25,6 @@ class GameDetails {
             statusBadge: document.getElementById('status-badge'),
             ownerName: document.getElementById('owner-name'),
             ownerInitial: document.getElementById('owner-initial'),
-            ownerRating: document.getElementById('owner-rating'),
             startDate: document.getElementById('start-date'),
             endDate: document.getElementById('end-date'),
             availabilitySection: document.getElementById('availability-section'),
@@ -45,7 +44,10 @@ class GameDetails {
             calendarTitle: document.getElementById('calendar-title'),
             calendarDays: document.getElementById('calendar-days'),
             prevMonth: document.getElementById('prev-month'),
-            nextMonth: document.getElementById('next-month')
+            nextMonth: document.getElementById('next-month'),
+            historyLoading: document.getElementById('history-loading'),
+            historyEmpty: document.getElementById('history-empty'),
+            historyList: document.getElementById('history-list')
         };
     }
 
@@ -87,6 +89,9 @@ class GameDetails {
                 this.renderCalendar();
             }
 
+            // Load and display rental history
+            await this.loadRentalHistory();
+
             this.showContent();
         } catch (error) {
             console.error('Error loading game details:', error);
@@ -127,20 +132,33 @@ class GameDetails {
         // Description
         this.elements.gameDescription.textContent = this.gameData.description || 'No description available.';
 
+        // Delivery Instructions
+        const deliverySection = document.getElementById('delivery-section');
+        const deliveryInstructions = document.getElementById('delivery-instructions');
+        if (this.gameData.deliveryInstructions && this.gameData.deliveryInstructions.trim() !== '') {
+            deliveryInstructions.textContent = this.gameData.deliveryInstructions;
+            deliverySection.style.display = 'block';
+        } else {
+            deliverySection.style.display = 'none';
+        }
+
         // Status
         const statusClass = 'available';
         const statusText = 'Available for Booking';
-        this.elements.statusBadge.className = `status-badge ${statusClass}`;
-        this.elements.statusBadge.textContent = statusText;
+
+        // Check if game has available dates
+        if (!this.gameData.startDate || !this.gameData.endDate) {
+            this.elements.statusBadge.className = 'status-badge unavailable';
+            this.elements.statusBadge.textContent = 'Unavailable';
+        } else {
+            this.elements.statusBadge.className = `status-badge ${statusClass}`;
+            this.elements.statusBadge.textContent = statusText;
+        }
 
         // Owner
         const ownerUsername = this.gameData.ownerUsername || 'Unknown';
         this.elements.ownerName.textContent = ownerUsername;
         this.elements.ownerInitial.textContent = ownerUsername.charAt(0).toUpperCase();
-
-        // Owner rating (default 4.5 since backend doesn't have this)
-        const rating = 4.5;
-        this.displayRating(rating);
 
         // Availability calendar
         if (this.gameData.startDate && this.gameData.endDate) {
@@ -201,25 +219,6 @@ class GameDetails {
         // Update active thumbnail
         document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
         thumbnail.classList.add('active');
-    }
-
-    displayRating(rating) {
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 >= 0.5;
-        let starsHtml = '';
-
-        for (let i = 1; i <= 5; i++) {
-            if (i <= fullStars) {
-                starsHtml += '<span class="star">★</span>';
-            } else if (i === fullStars + 1 && hasHalfStar) {
-                starsHtml += '<span class="star">★</span>';
-            } else {
-                starsHtml += '<span class="star empty">☆</span>';
-            }
-        }
-
-        this.elements.ownerRating.querySelector('.stars').innerHTML = starsHtml;
-        this.elements.ownerRating.querySelector('.rating-text').textContent = `(${rating.toFixed(1)})`;
     }
 
     showLoading() {
@@ -297,6 +296,23 @@ class GameDetails {
             });
         }
 
+        // Booking close button
+        const bookingCloseBtn = document.getElementById('booking-close-btn');
+        if (bookingCloseBtn) {
+            bookingCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.closeBookingModal();
+            });
+        }
+
+        // Price calculation on date change
+        if (this.elements.bookingStart) {
+            this.elements.bookingStart.addEventListener('change', () => this.calculateBookingPrice());
+        }
+        if (this.elements.bookingEnd) {
+            this.elements.bookingEnd.addEventListener('change', () => this.calculateBookingPrice());
+        }
+
         // Close modal when clicking backdrop
         if (this.elements.bookingModal) {
             this.elements.bookingModal.addEventListener('click', (e) => {
@@ -322,43 +338,78 @@ class GameDetails {
             return;
         }
 
-        // Navigate to rent page with game ID
-        window.location.href = `/rent?id=${this.gameId}`;
+        // Open booking modal to select dates
+        this.openBookingModal();
     }
 
     openBookingModal() {
         if (!this.elements.bookingModal) return;
 
-        // Show modal first (non-blocking)
-        this.elements.bookingError.style.display = 'none';
+        // Reset error messages
+        this.clearBookingError();
+
+        // Hide price summary initially
+        const priceSummary = document.getElementById('booking-price-summary');
+        if (priceSummary) {
+            priceSummary.style.display = 'none';
+        }
+
+        // Show modal with proper positioning
         this.elements.bookingModal.style.display = 'flex';
+        this.elements.bookingModal.style.position = 'fixed';
+        this.elements.bookingModal.style.inset = '0';
+        this.elements.bookingModal.style.alignItems = 'center';
+        this.elements.bookingModal.style.justifyContent = 'center';
+        this.elements.bookingModal.style.background = 'rgba(0, 0, 0, 0.7)';
+        this.elements.bookingModal.style.zIndex = '999';
+        this.elements.bookingModal.style.backdropFilter = 'blur(4px)';
 
-        // Defer date calculations to avoid blocking
-        requestAnimationFrame(() => {
-            // Prefill modal title
-            this.elements.modalGameTitle.textContent = this.gameData.title;
+        // Prefill modal title
+        this.elements.modalGameTitle.textContent = `Rent ${this.gameData.title}`;
 
-            // Prefill start/end with game's available dates or today
-            const today = new Date();
-            const minStart = this.gameData.startDate ? new Date(this.gameData.startDate) : today;
-            const maxEnd = this.gameData.endDate ? new Date(this.gameData.endDate) : null;
+        // Prefill start/end with game's available dates or today
+        const today = new Date();
+        const minStart = this.gameData.startDate ? new Date(this.gameData.startDate) : today;
+        const maxEnd = this.gameData.endDate ? new Date(this.gameData.endDate) : null;
 
-            const startStr = BitSwapUtils.formatDate(minStart);
-            this.elements.bookingStart.value = startStr;
-            this.elements.bookingStart.min = startStr;
+        const startStr = BitSwapUtils.formatDate(minStart);
+        this.elements.bookingStart.value = startStr;
+        this.elements.bookingStart.min = startStr;
 
-            if (maxEnd) {
-                this.elements.bookingEnd.min = startStr;
-                this.elements.bookingEnd.max = BitSwapUtils.formatDate(maxEnd);
-                this.elements.bookingEnd.value = BitSwapUtils.formatDate(new Date(minStart.getTime() + 24 * 60 * 60 * 1000));
-            } else {
-                // default end date is next day
-                const nextDay = new Date(minStart);
-                nextDay.setDate(minStart.getDate() + 1);
-                this.elements.bookingEnd.value = BitSwapUtils.formatDate(nextDay);
-                this.elements.bookingEnd.min = startStr;
+        if (maxEnd) {
+            this.elements.bookingEnd.min = startStr;
+            this.elements.bookingEnd.max = BitSwapUtils.formatDate(maxEnd);
+            this.elements.bookingEnd.value = BitSwapUtils.formatDate(new Date(minStart.getTime() + 24 * 60 * 60 * 1000));
+        } else {
+            // default end date is next day
+            const nextDay = new Date(minStart);
+            nextDay.setDate(minStart.getDate() + 1);
+            this.elements.bookingEnd.value = BitSwapUtils.formatDate(nextDay);
+            this.elements.bookingEnd.min = startStr;
+        }
+
+        // Trigger price calculation on load
+        this.calculateBookingPrice();
+    }
+
+    calculateBookingPrice() {
+        const start = this.elements.bookingStart.value;
+        const end = this.elements.bookingEnd.value;
+        
+        if (start && end) {
+            if (!this.isDateRangeAvailable(start, end)) {
+                const priceSummary = document.getElementById('booking-price-summary');
+                if (priceSummary) priceSummary.style.display = 'none';
+                return;
             }
-        });
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const daysCount = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const dailyRate = this.gameData.pricePerDay || 9.99;
+            const totalPrice = daysCount > 0 ? daysCount * dailyRate : 0;
+
+            this.updateBookingPriceSummary(dailyRate, daysCount, totalPrice);
+        }
     }
 
     closeBookingModal() {
@@ -366,7 +417,29 @@ class GameDetails {
         this.elements.bookingModal.style.display = 'none';
     }
 
+    isDateRangeAvailable(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+
+        return !this.bookings.some(booking => {
+            const bookingStart = new Date(booking.startDate);
+            const bookingEnd = new Date(booking.endDate);
+
+            bookingStart.setHours(0, 0, 0, 0);
+            bookingEnd.setHours(0, 0, 0, 0);
+
+            // Overlap check
+            return start <= bookingEnd && end >= bookingStart;
+        });
+    }
+
     async submitBooking() {
+        // Clear previous errors
+        this.clearBookingError();
+
         // Basic validation
         const start = this.elements.bookingStart.value;
         const end = this.elements.bookingEnd.value;
@@ -378,6 +451,14 @@ class GameDetails {
             this.showBookingError('End date must be after start date.');
             return;
         }
+        // Check for overlapping bookings
+        if (!this.isDateRangeAvailable(start, end)) {
+            this.showBookingError(
+                'Some of the selected dates are already booked. Please choose different dates.'
+            );
+            return;
+        }
+
 
         // Get logged-in user
         const stored = localStorage.getItem('bitswap_demo_user');
@@ -392,36 +473,54 @@ class GameDetails {
             return;
         }
 
-        // Send booking request to backend - use create by username endpoint
-        try {
-            const payload = {
-                username: username,
-                gameId: parseInt(this.gameId),
-                startDate: start,
-                endDate: end
-            };
+        // Calculate total price
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const daysCount = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const dailyRate = this.gameData.pricePerDay || 9.99;
+        const totalPrice = daysCount * dailyRate;
 
-            const resp = await fetch('/bookings/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+        // Update booking price summary
+        this.updateBookingPriceSummary(dailyRate, daysCount, totalPrice);
 
-            if (!resp.ok) {
-                const err = await resp.json().catch(() => ({}));
-                this.showBookingError(err.error || 'Failed to create booking.');
-                return;
-            }
+        // Store booking data for payment processing
+        this.currentBookingData = {
+            gameTitle: this.gameData.title,
+            startDate: start,
+            endDate: end,
+            totalPrice: totalPrice,
+            gameId: parseInt(this.gameId),
+            userId: user.userId,
+            username: username,
+            dailyRate: dailyRate,
+            daysCount: daysCount
+        };
 
-            const result = await resp.json();
-            // Show confirmation and close modal
-            alert(`Booking confirmed! Booking ID: ${result.bookingId} — Total: $${result.totalPrice.toFixed(2)}`);
-            this.closeBookingModal();
-            // Refresh page to update availability
-            window.location.reload();
-        } catch (e) {
-            console.error(e);
-            this.showBookingError('Failed to submit booking.');
+        // Close booking modal and open payment modal
+        this.closeBookingModal();
+
+        // Initialize payment with booking data
+        if (typeof PaymentManager !== 'undefined') {
+            PaymentManager.initializePayment(this.currentBookingData);
+        } else {
+            this.showBookingError('Payment system not available. Please refresh and try again.');
+        }
+    }
+
+    updateBookingPriceSummary(dailyRate, daysCount, totalPrice) {
+        const priceSummary = document.getElementById('booking-price-summary');
+        if (priceSummary) {
+            document.getElementById('daily-rate').textContent = `$${dailyRate.toFixed(2)}`;
+            document.getElementById('days-count').textContent = daysCount;
+            document.getElementById('booking-total').textContent = `$${totalPrice.toFixed(2)}`;
+            priceSummary.style.display = 'block';
+        }
+    }
+
+    clearBookingError() {
+        if (this.elements.bookingError) {
+            this.elements.bookingError.style.display = 'none';
+            this.elements.bookingError.textContent = '';
         }
     }
 
@@ -524,6 +623,93 @@ class GameDetails {
             date.setHours(0, 0, 0, 0);
             return date >= start && date <= end;
         });
+    }
+
+    /**
+     * Load and display rental history for this game
+     */
+    async loadRentalHistory() {
+        if (!this.elements.historyLoading || !this.elements.historyEmpty || !this.elements.historyList) {
+            return;
+        }
+
+        try {
+            // Show loading state
+            this.elements.historyLoading.style.display = 'flex';
+            this.elements.historyEmpty.style.display = 'none';
+            this.elements.historyList.style.display = 'none';
+
+            // Fetch rental history for this game
+            const response = await fetch(`/bookings/game/${this.gameId}`);
+            if (!response.ok) {
+                throw new Error('Failed to load rental history');
+            }
+
+            const rentalHistory = await response.json();
+
+            // Hide loading state
+            this.elements.historyLoading.style.display = 'none';
+
+            // Show empty state or rental items
+            if (!rentalHistory || rentalHistory.length === 0) {
+                this.elements.historyEmpty.style.display = 'block';
+            } else {
+                this.displayRentalHistory(rentalHistory);
+                this.elements.historyList.style.display = 'flex';
+            }
+        } catch (error) {
+            console.error('Error loading rental history:', error);
+            this.elements.historyLoading.style.display = 'none';
+            this.elements.historyEmpty.style.display = 'block';
+        }
+    }
+
+    /**
+     * Display rental history items (compact format)
+     */
+    displayRentalHistory(rentalHistory) {
+        this.elements.historyList.innerHTML = '';
+
+        rentalHistory.forEach(booking => {
+            const item = this.createRentalItem(booking);
+            this.elements.historyList.appendChild(item);
+        });
+    }
+
+    /**
+     * Create a compact rental history item
+     */
+    createRentalItem(booking) {
+        const item = document.createElement('div');
+        item.className = 'rental-item';
+
+        // Format dates
+        const startDate = new Date(booking.startDate).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+        const endDate = new Date(booking.endDate).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+
+        // Get renter info
+        const renterName = booking.user?.username || 'A user';
+
+        // Get status
+        const status = booking.status || 'pending';
+        const statusClass = status.toLowerCase();
+
+        item.innerHTML = `
+            <div>
+                <span class="renter">${renterName}</span> rented
+                <span class="rental-status-badge ${statusClass}">${status}</span>
+            </div>
+            <span class="dates">${startDate} - ${endDate}</span>
+        `;
+
+        return item;
     }
 }
 

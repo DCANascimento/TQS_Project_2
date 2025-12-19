@@ -3,6 +3,7 @@ package test1.test1.service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -49,11 +50,28 @@ public class BookingService {
         return bookingRepository.findAll();
     }
 
+    public Optional<Booking> getBookingById(Integer bookingId) {
+        return bookingRepository.findById(bookingId);
+    }
+
     public List<Booking> getBookingsByGame(Integer gameId) {
         return bookingRepository.findByGameGameId(gameId);
     }
 
     public List<Booking> getBookingsByUser(Integer userId) {
         return bookingRepository.findByUserUserId(userId);
+    }
+
+    public List<Booking> getBookingsByOwner(String ownerUsername) {
+        return bookingRepository.findByGameOwnerUsername(ownerUsername);
+    }
+
+    public Booking updateBookingStatus(Integer bookingId, String status) {
+        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        if (booking != null) {
+            booking.setStatus(status);
+            return bookingRepository.save(booking);
+        }
+        return null;
     }
 }
